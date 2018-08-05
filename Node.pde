@@ -21,11 +21,13 @@ class Node {
   }
 
   public void applyForce(PVector force) {
-    acceleration.add(force.copy().div(mass).limit(1));
+    acceleration.add(force.copy().div(mass));
+    acceleration.limit(1);
   }
 
   public void applyAngForce(float ang) {
     ang_acceleration += ang;
+    constrain(ang_acceleration, -1, 1);
   }
 
   public void run() {
@@ -46,10 +48,26 @@ class Node {
   }
 
   public void limits() {
-    if (position.x < -radius) position.x = width+radius;
+ /*   if (position.x < -radius) position.x = width+radius;
     if (position.y < -radius) position.y = height+radius;
     if (position.x > width+radius) position.x = -radius;
-    if (position.y > height+radius) position.y = -radius;
+    if (position.y > height+radius) position.y = -radius;*/
+    if (position.x < 0) {
+      position.x = 0;
+      velocity.x = abs(velocity.x);
+    }
+    if (position.y < 0) {
+      position.y = 0;
+      velocity.y = abs(velocity.y);
+    }
+    if (position.x > width) {
+      position.x = width;
+      velocity.x = -1 * abs(velocity.x);
+    }
+    if (position.y > height) {
+      position.y = height;
+      velocity.y = -1 * abs(velocity.y);
+    }
     angle %= (2 * PI);
   }
 

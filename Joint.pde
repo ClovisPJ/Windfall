@@ -14,8 +14,8 @@ class Joint {
     this.right = right;
     this.right_ang = right_ang;
     this.length = length;
-    this.stiffness = 0.1;
-    this.deflection = 0.1;
+    this.stiffness = 0.05;
+    this.deflection = 0.05;
   }
 
   public void run() {
@@ -31,6 +31,7 @@ class Joint {
   }
 
   public void shear() {
+    // TODO fix wierd problem where angle flips through 0
     float angle;
     angle = wayto(left.position, right.position).heading();
     angle -= (left.angle + left_ang);
