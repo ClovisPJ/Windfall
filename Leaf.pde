@@ -25,7 +25,6 @@ class Leaf {
     for (Joint j : joints) {
       j.run();
     }
-    render();
   }
 
   public void render() {

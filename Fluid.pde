@@ -1,3 +1,5 @@
+import java.lang.Math;
+
 class Fluid {
 
   float[][] u;
@@ -18,21 +20,31 @@ class Fluid {
     v_prev = new float[N+2][N+2];
     dens = new float[N+2][N+2];
     dens_prev = new float[N+2][N+2];
-    visc = 0.1;
-    diff = 0.1;
-    dt = 0.01;
+    visc = 0.01;
+    diff = 0.01;
+    dt = 0.2;
     this.N = N;
   }
 
   public void draw() {
-    draw_stroke(dens);
+    draw_point(dens);
+    draw_arrow(u, v);
   }
 
-  public void draw_stroke(float[][] x) {
+  public void draw_point(float[][] x) {
     for (int i = 0; i < N+2; i++) {
       for (int j = 0; j < N+2; j++) {
-        stroke(x[i][j]);
+        stroke(255-x[i][j]);
         point(i, j);
+      }
+    }
+  }
+
+  public void draw_arrow(float[][] u, float[][] v) {
+    for (int i = 0; i < N+2; i+=10) {
+      for (int j = 0; j < N+2; j+=10) {
+        stroke(255, 0, 0);
+        line(i, j, i + 1000000*u[i][j], j + 1000000*v[i][j]);
       }
     }
   }
@@ -47,27 +59,46 @@ class Fluid {
     add_source(N, dens, source, dt);
   }
 
+  public PVector field_vector(int x, int y) {
+    return new PVector(u[x][y], v[x][y]);
+  }
+
   public void simulate() {
     u_prev = u;
     v_prev = v;
     dens_prev = dens;
+    u = new float[N+2][N+2];
+    v = new float[N+2][N+2];
+    dens = new float[N+2][N+2];
     vel_step(N, u, v, u_prev, v_prev, visc, dt);
     dens_step(N, dens, dens_prev, u, v, diff, dt);
+  }
+
+  public void divergence (int x, int y, int r) {
+    for (int i = x - r; i <= x + r; i++) {
+      for (int j = y - r; j <= y + r; j++) {
+        float a = Math.signum(i - x) * -map(abs(i - x), 0, r, -1, 0);
+        float b = Math.signum(j - y) * -map(abs(j - y), 0, r, -1, 0);
+        u[i][j] += 0.01*a;
+        v[i][j] += 0.01*b;
+      }
+    }
   }
 
   public void dens_step(int N, float[][] x, float[][] x0, float[][] u, float[][] v, float diff, float dt) {
     float[][] temp;
     add_source(N, x, x0, dt);
+    temp = x0; x0 = x; x = temp;
     diffuse(N, 0, x, x0, diff, dt);
     temp = x0; x0 = x; x = temp;
     advect(N, 0, x, x0, u, v, dt);
-    temp = x0; x0 = x; x = temp;
   }
 
-  public void vel_step(int N, float[][] u, float[][] v, float[][] u0, float[][] v0, float vsic, float dt) {
+  public void vel_step(int N, float[][] u, float[][] v, float[][] u0, float[][] v0, float visc, float dt) {
+    float[][] temp;
     add_source(N, u, u0, dt);
     add_source(N, v, v0, dt);
-    float[][] temp = u0; u0 = u; u = temp;
+    temp = u0; u0 = u; u = temp;
     temp = v0; v0 = v; v = temp;
     diffuse(N, 1, u, u0, visc, dt);
     diffuse(N, 2, v, v0, visc, dt);
@@ -80,8 +111,8 @@ class Fluid {
   }
 
   public void add_source(int N, float[][] x, float[][] s, float dt) {
-    for (int i = 0; i < (N+2); i++) {
-      for (int j = 0; j < (N+2); j++) {
+    for (int i = 0; i <= (N+1); i++) {
+      for (int j = 0; j <= (N+1); j++) {
         x[i][j] += dt * s[i][j];
       }
     }
@@ -108,16 +139,16 @@ class Fluid {
       for (int j = 1; j <= N; j++) {
         x = i - dt0 * u[i][j]; y = j - dt0 * v[i][j];
         if (x < 0.5) x = 0.5; if (x > N+0.5) x = N + 0.5; i0 = (int)x; i1 = i0 + 1;
-        if (y < 0.5) y = 0.5; if (y > N+0.5) y = N + 0.5; j0 = (int)x; j1 = j0 + 1;
+        if (y < 0.5) y = 0.5; if (y > N+0.5) y = N + 0.5; j0 = (int)y; j1 = j0 + 1;
         s1 = x - i0; s0 = 1 - s1; t1 = y - j0; t0 = 1 - t1;
-        d[i][j] = s0 * ( t0*d0[i][j] + t1*d0[i][j] ) +
-                  s1 * ( t0*d0[i][j] + t1*d0[i][j] );
+        d[i][j] = s0 * ( t0*d0[i0][j0] + t1*d0[i0][j1] ) +
+                  s1 * ( t0*d0[i1][j0] + t1*d0[i1][j1] );
       }
     }
     set_bnd(N, b, d);
   }
 
-  public void project(int N, float[][] u, float[][]v, float[][]p, float[][] div) {
+  public void project(int N, float[][] u, float[][] v, float[][] p, float[][] div) {
     float h = 1.0/N;
     for (int i = 1; i <= N; i++) {
       for (int j = 1; j <= N; j++) {
@@ -147,7 +178,7 @@ class Fluid {
   }
 
   public void set_bnd(int N, int b, float[][] x) {
-    for (int i = 0; i <= N; i++) {
+    for (int i = 1; i <= N; i++) {
       x[0][i] = (b==1) ? -x[1][i] : x[1][i];
       x[N+1][i] = (b==1) ? -x[N][i] : x[N][i];
       x[i][0] = (b==2) ? -x[i][1] : x[i][1];
@@ -157,12 +188,6 @@ class Fluid {
     x[0][N+1] = 0.5 * (x[1][N+1] + x[0][N]);
     x[N+1][0] = 0.5 * (x[N][0] + x[N+1][1]);
     x[N+1][N+1] = 0.5 * (x[N][N+1] + x[N+1][N]);
-  }
-
-  public void swap(float[][]a, float[][]b) {
-    float[][] temp = a;
-    a = b;
-    b = temp;
   }
 
 }
