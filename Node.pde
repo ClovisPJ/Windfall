@@ -17,7 +17,7 @@ class Node {
     this.ang_velocity = 0;
     this.ang_acceleration = 0;
     this.mass = 1;
-    this.radius = 80;
+    this.radius = 10;
   }
 
   public void applyForce(PVector force) {

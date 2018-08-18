@@ -1,7 +1,7 @@
 Leaf leaf;
 
 void setup() {
-  size(640, 320);
+  size(500, 500);
   leaf = new Leaf();
 }
 

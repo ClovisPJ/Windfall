@@ -15,7 +15,7 @@ class Joint {
     this.right_ang = right_ang;
     this.length = length;
     this.stiffness = 0.05;
-    this.deflection = 0.05;
+    this.deflection = 0.5;
   }
 
   public void run() {
