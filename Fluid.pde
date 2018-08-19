@@ -20,8 +20,8 @@ class Fluid {
     v_prev = new float[N+2][N+2];
     dens = new float[N+2][N+2];
     dens_prev = new float[N+2][N+2];
-    visc = 0.01;
-    diff = 0.01;
+    visc = 0.0001;
+    diff = 0.0001;
     dt = 0.2;
     this.N = N;
   }
@@ -44,19 +44,18 @@ class Fluid {
     for (int i = 0; i < N+2; i+=10) {
       for (int j = 0; j < N+2; j+=10) {
         stroke(255, 0, 0);
-        line(i, j, i + 1000000*u[i][j], j + 1000000*v[i][j]);
+        line(i, j, i + 1000*u[i][j], j + 1000*v[i][j]);
       }
     }
   }
 
   public void add(int x, int y, int r) {
-    float[][] source = new float[N+2][N+2];
     for (int i = x-r/2; i < x+r/2; i++) {
       for (int j = y-r/2; j < y+r/2; j++) {
-        source[i][j] = 10000;
+        if (i > N || j > N) continue;
+        dens[i][j] += 100;
       }
     }
-    add_source(N, dens, source, dt);
   }
 
   public PVector field_vector(int x, int y) {
@@ -64,12 +63,9 @@ class Fluid {
   }
 
   public void simulate() {
-    u_prev = u;
-    v_prev = v;
-    dens_prev = dens;
-    u = new float[N+2][N+2];
-    v = new float[N+2][N+2];
-    dens = new float[N+2][N+2];
+    u_prev = new float[N+2][N+2];
+    v_prev = new float[N+2][N+2];
+    dens_prev = new float[N+2][N+2];
     vel_step(N, u, v, u_prev, v_prev, visc, dt);
     dens_step(N, dens, dens_prev, u, v, diff, dt);
   }
@@ -79,8 +75,9 @@ class Fluid {
       for (int j = y - r; j <= y + r; j++) {
         float a = Math.signum(i - x) * -map(abs(i - x), 0, r, -1, 0);
         float b = Math.signum(j - y) * -map(abs(j - y), 0, r, -1, 0);
-        u[i][j] += 0.01*a;
-        v[i][j] += 0.01*b;
+        if (i > N || j > N) continue;
+        u[i][j] += 0.1*a;
+        v[i][j] += 0.1*b;
       }
     }
   }

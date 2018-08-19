@@ -16,7 +16,7 @@ class Node {
     this.angle = angle;
     this.ang_velocity = 0;
     this.ang_acceleration = 0;
-    this.mass = 1;
+    this.mass = 0.01;
     this.radius = 10;
   }
 
@@ -31,13 +31,14 @@ class Node {
   }
 
   public void run() {
+    show();
     update();
     limits();
   }
 
   public void update() {
-    velocity.mult(0.9);
-    ang_velocity *= 0.9;
+    velocity.mult(0.6);
+    ang_velocity *= 0.6;
 
     velocity.add(acceleration);
     position.add(velocity);
@@ -53,22 +54,28 @@ class Node {
     if (position.x > width+radius) position.x = -radius;
     if (position.y > height+radius) position.y = -radius;*/
     if (position.x < 0) {
-      position.x = 0;
-      velocity.x = abs(velocity.x);
+      position.x = width;
+      //velocity.x = abs(velocity.x);
     }
     if (position.y < 0) {
-      position.y = 0;
-      velocity.y = abs(velocity.y);
+      position.y = height;
+      //velocity.y = abs(velocity.y);
     }
     if (position.x > width) {
-      position.x = width;
-      velocity.x = -1 * abs(velocity.x);
+      position.x = 0;
+      //velocity.x = -1 * abs(velocity.x);
     }
     if (position.y > height) {
-      position.y = height;
-      velocity.y = -1 * abs(velocity.y);
+      position.y = 0;
+      //velocity.y = -1 * abs(velocity.y);
     }
     angle %= (2 * PI);
+  }
+
+  public void show() {
+    stroke(255, 0, 0);
+    float k = 80;
+    line(position.x, position.y, position.x + acceleration.x*k, position.y + acceleration.y*k);
   }
 
 }
