@@ -9,24 +9,33 @@ class LSystem {
     public LSystem(String axiom, int n) {
         this.axiom = axiom;
         this.n = n;
-        pattern = generate(axiom, n);
+        rules = new ArrayList<LSystemRule>();
     }
 
-    private String generate(String gen, int n) {
+    public void addRule(LSystemRule rule) {
+        rules.add(rule);
+    }
+
+    public void generate() {
+        pattern = generateHelper(axiom, n);
+    }
+
+    private String generateHelper(String gen, int n) {
         assert(gen != "" && gen != null);
-        assert(n > 0);
+        assert(n >= 0);
         if (n == 0) return gen;
-        String next_gen = new String("");
+        StringBuilder next_gen = new StringBuilder();
         for (char g : gen.toCharArray()) {
             for (LSystemRule lsr : rules) {
                 if (String.valueOf(g).equals(lsr.pre)) {
-                    next_gen = next_gen.concat(lsr.post);
+                    //println("appending: '" + next_gen + "' to: '" + lsr.post + "'");
+                    next_gen.append(lsr.post);
                     break;
                 }
             }
-            next_gen = next_gen.concat(String.valueOf(g));
+            next_gen.append(g);
         }
-        return generate(next_gen, n-1);
+        return generateHelper(next_gen.toString(), n-1);
     }
 
     public String show() {

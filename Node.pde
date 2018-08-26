@@ -1,4 +1,4 @@
-class Node {
+class Node extends Part {
 
   PVector position;
   PVector velocity;
@@ -69,7 +69,6 @@ class Node {
       position.y = 0;
       //velocity.y = -1 * abs(velocity.y);
     }
-    angle %= (2 * PI);
   }
 
   public void show() {

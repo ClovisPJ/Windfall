@@ -1,4 +1,4 @@
-class Joint {
+class Joint extends Part {
 
   Node left;
   float left_ang;
@@ -40,23 +40,15 @@ class Joint {
   public void shear() {
     // TODO fix wierd problem where angle flips through 0
     float angle;
-    angle = wayto(left.position, right.position).heading();
-    //angle = angto( (left.angle + left_ang) % 360, angle);
+    angle = -1 * wayto(left.position, right.position).heading();
+    //angle = angto( (left.angle + left_ang) % TWO_PI, angle);
     angle -= (left.angle + left_ang);
     left.applyAngForce(angle*deflection);
     right.applyForce(wayto(left.position, right.position).normalize().rotate(-1*HALF_PI).mult(angle*deflection));
-    angle = wayto(right.position, left.position).heading();
+    angle = -1 * wayto(right.position, left.position).heading();
     angle -= (right.angle + right_ang);
     right.applyAngForce(angle*deflection);
     left.applyForce(wayto(right.position, left.position).normalize().rotate(-1*HALF_PI).mult(angle*deflection));
-  }
-
-  public PVector wayto(PVector from, PVector to) {
-    return PVector.sub(to, from);
-  }
-
-  public float angto(float from, float to) {
-    return to - from;
   }
 
 }

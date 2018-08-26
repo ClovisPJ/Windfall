@@ -5,9 +5,9 @@ boolean lock;
 
 void setup() {
   lock = false;
-  N = 150;
-  size(151, 151, P2D);
-  leaf = new Leaf();
+  N = 200;
+  size(201, 201, P2D);
+  leaf = new Leaf(60, 60);
   fluid = new Fluid(N);
 }
 
