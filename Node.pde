@@ -54,20 +54,20 @@ class Node extends Part {
     if (position.x > width+radius) position.x = -radius;
     if (position.y > height+radius) position.y = -radius;*/
     if (position.x < 0) {
-      position.x = width;
-      //velocity.x = abs(velocity.x);
+      position.x = 0;
+      velocity.x = abs(velocity.x);
     }
     if (position.y < 0) {
-      position.y = height;
-      //velocity.y = abs(velocity.y);
+      position.y = 0;
+      velocity.y = abs(velocity.y);
     }
     if (position.x > width) {
-      position.x = 0;
-      //velocity.x = -1 * abs(velocity.x);
+      position.x = width;
+      velocity.x = -1 * abs(velocity.x);
     }
     if (position.y > height) {
-      position.y = 0;
-      //velocity.y = -1 * abs(velocity.y);
+      position.y = height;
+      velocity.y = -1 * abs(velocity.y);
     }
   }
 

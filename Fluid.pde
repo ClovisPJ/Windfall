@@ -8,6 +8,7 @@ class Fluid {
   float[][] v_prev;
   float[][] dens;
   float[][] dens_prev;
+  boolean[][] boundary;
   float visc;
   float diff;
   float dt;
@@ -20,6 +21,7 @@ class Fluid {
     v_prev = new float[N+2][N+2];
     dens = new float[N+2][N+2];
     dens_prev = new float[N+2][N+2];
+    boundary = new boolean[N+2][N+2];
     visc = 0.0001;
     diff = 0.0001;
     dt = 0.2;
@@ -35,6 +37,7 @@ class Fluid {
     for (int i = 0; i < N+2; i++) {
       for (int j = 0; j < N+2; j++) {
         stroke(255-x[i][j]);
+        if (boundary[i][j]) stroke(255,0,0);
         point(i, j);
       }
     }
@@ -49,11 +52,20 @@ class Fluid {
     }
   }
 
-  public void add(int x, int y, int r) {
+  public void add_dens(int x, int y, int r) {
     for (int i = x-r/2; i < x+r/2; i++) {
       for (int j = y-r/2; j < y+r/2; j++) {
         if (i > N || j > N) continue;
         dens[i][j] += 100;
+      }
+    }
+  }
+
+  public void add_boundary(int x, int y, int r) {
+    for (int i = x-r/2; i < x+r/2; i++) {
+      for (int j = y-r/2; j < y+r/2; j++) {
+        if (i > N || j > N) continue;
+        boundary[i][j] = true;
       }
     }
   }
@@ -148,8 +160,7 @@ class Fluid {
   public void project(int N, float[][] u, float[][] v, float[][] p, float[][] div) {
     float h = 1.0/N;
     for (int i = 1; i <= N; i++) {
-      for (int j = 1; j <= N; j++) {
-        div[i][j] = -0.5*h*(u[i+1][j] - u[i-1][j] + 
+      for (int j = 1; j <= N; j++) { div[i][j] = -0.5*h*(u[i+1][j] - u[i-1][j] + 
                             v[i][j+1] - v[i][j-1]);
         p[i][j] = 0;
       }
@@ -185,6 +196,22 @@ class Fluid {
     x[0][N+1] = 0.5 * (x[1][N+1] + x[0][N]);
     x[N+1][0] = 0.5 * (x[N][0] + x[N+1][1]);
     x[N+1][N+1] = 0.5 * (x[N][N+1] + x[N+1][N]);
+
+    for (int i = 1; i <= N; i++) {
+      for (int j = 1; j <= N; j++) {
+        if (boundary[i][j]) {
+          x[i][j] = 0;
+          int surround = 0;
+          if (!boundary[i-1][j]) {x[i][j] += x[i-1][j]; surround++;}
+          if (!boundary[i+1][j]) {x[i][j] += x[i+1][j]; surround++;}
+          if (!boundary[i][j-1]) {x[i][j] += x[i][j-1]; surround++;}
+          if (!boundary[i][j+1]) {x[i][j] += x[i][j+1]; surround++;}
+          if (surround != 0) x[i][j] /= surround;
+          if ((b==1)||(b==2)) x[i][j] *= -1;
+        }
+      }
+    }
+
   }
 
 }

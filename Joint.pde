@@ -38,15 +38,15 @@ class Joint extends Part {
   }
 
   public void shear() {
-    // TODO fix wierd problem where angle flips through 0
     float angle;
     angle = -1 * wayto(left.position, right.position).heading();
-    //angle = angto( (left.angle + left_ang) % TWO_PI, angle);
-    angle -= (left.angle + left_ang);
+    angle = angto(left.angle, angle);
+    angle = angto(left_ang, angle);
     left.applyAngForce(angle*deflection);
     right.applyForce(wayto(left.position, right.position).normalize().rotate(-1*HALF_PI).mult(angle*deflection));
     angle = -1 * wayto(right.position, left.position).heading();
-    angle -= (right.angle + right_ang);
+    angle = angto(right.angle, angle);
+    angle = angto(right_ang, angle);
     right.applyAngForce(angle*deflection);
     left.applyForce(wayto(right.position, left.position).normalize().rotate(-1*HALF_PI).mult(angle*deflection));
   }

@@ -28,7 +28,9 @@ void mouseClicked() {
 //  leaf.nodes.get(0).position = new PVector(mouseX, mouseY);
   if (!lock) {
     if (keyPressed == true && keyCode == SHIFT) {
-      fluid.add(mouseX, mouseY, 20);
+      fluid.add_dens(mouseX, mouseY, 20);
+    } else if (keyPressed == true && keyCode == CONTROL) {
+      fluid.add_boundary(mouseX, mouseY, 20);
     } else {
       fluid.divergence(mouseX, mouseY, 20);
     }
