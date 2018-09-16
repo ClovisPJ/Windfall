@@ -7,7 +7,7 @@ class Leaf extends Part {
   public Leaf(int x, int y) {
     nodes = new ArrayList<Node>();
     joints = new ArrayList<Joint>();
-    /*Node n1 = new Node(new PVector(x, y), 0);
+    Node n1 = new Node(new PVector(x, y), 0);
     Node n2 = new Node(new PVector(x+30, y), 0);
     Node n3 = new Node(new PVector(x+30, y+30), 0);
     nodes.add(n1);
@@ -16,14 +16,14 @@ class Leaf extends Part {
     Joint j1 = new Joint(n1, 0, n2, PI, 30);
     Joint j2 = new Joint(n2, 3*PI/2, n3, PI/2, 30);
     joints.add(j1);
-    joints.add(j2);*/
-    Node n = new Node(new PVector(x, y), 0);
+    joints.add(j2);
+    /*Node n = new Node(new PVector(x, y), 0);
     nodes.add(n);
     lsys = new LSystem("X", 1);
     lsys.addRule(lsys.new LSystemRule("X","F+[[X]-X]-F[-FX]+X"));
     lsys.addRule(lsys.new LSystemRule("F","FF"));
     lsys.generate();
-    build(lsys.show(), 20, PI/4, new PVector(0,0), 0);
+    build(lsys.show(), 20, PI/4, new PVector(0,0), 0);*/
   }
 
   public void run() {
@@ -72,10 +72,21 @@ class Leaf extends Part {
   }
 
   public void render() {
-      stroke(0);
-      fill(0);
+      for (Node n : nodes) {
+          stroke(0);
+          strokeWeight(1);
+          ellipse(n.position.x, n.position.y, n.radius*2, n.radius*2); 
+      }
       for (Joint j : joints) {
-          line(j.left.position.x, j.left.position.y, j.right.position.x, j.right.position.y);
+          PVector left_point = PVector.add(j.left_node.position,
+                                new PVector(j.left_node.radius,0)
+                                  .rotate(-1*(j.left_node.angle+j.joint_true_left_ang)) );
+          PVector right_point = PVector.add(j.right_node.position,
+                                new PVector(j.right_node.radius,0)
+                                  .rotate(-1*(j.right_node.angle+j.joint_true_right_ang)) );
+          stroke(255,0,0);
+          strokeWeight(4);
+          line(left_point.x, left_point.y, right_point.x, right_point.y);
       }
   }
 

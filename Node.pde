@@ -1,9 +1,11 @@
 class Node extends Part {
 
   PVector position;
+  // measured from top-left, down and across
   PVector velocity;
   PVector acceleration;
   float angle;
+  // measured counter-clockwise from (1,0)
   float ang_velocity;
   float ang_acceleration;
   float mass;
@@ -37,14 +39,15 @@ class Node extends Part {
   }
 
   public void update() {
-    velocity.mult(0.6);
-    ang_velocity *= 0.6;
+    velocity.mult(0.4);
+    ang_velocity *= 0.4;
 
     velocity.add(acceleration);
     position.add(velocity);
     acceleration.mult(0);
     ang_velocity += ang_acceleration;
     angle += ang_velocity;
+    angle = angto(0, angle);
     ang_acceleration *= 0;
   }
 

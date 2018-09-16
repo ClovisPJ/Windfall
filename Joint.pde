@@ -1,9 +1,9 @@
 class Joint extends Part {
 
-  Node left;
-  float left_ang;
-  Node right;
-  float right_ang;
+  Node left_node;
+  float joint_true_left_ang;
+  Node right_node;
+  float joint_true_right_ang;
   float length;
   float stiffness;
   float deflection;
@@ -11,11 +11,11 @@ class Joint extends Part {
   float breaking_stress;
   boolean broken;
 
-  public Joint(Node left, float left_ang, Node right, float right_ang, float length) {
-    this.left = left;
-    this.left_ang = left_ang;
-    this.right = right;
-    this.right_ang = right_ang;
+  public Joint(Node left_node, float joint_true_left_ang, Node right_node, float joint_true_right_ang, float length) {
+    this.left_node = left_node;
+    this.joint_true_left_ang = joint_true_left_ang;
+    this.right_node = right_node;
+    this.joint_true_right_ang = joint_true_right_ang;
     this.length = length;
     stiffness = 0.06;
     deflection = 0.01;
@@ -30,25 +30,25 @@ class Joint extends Part {
   }
 
   public void tension() {
-    PVector force = wayto(left.position, right.position);
+    PVector force = wayto(left_node.position, right_node.position);
     force.sub(force.copy().normalize().mult(length)).mult(stiffness);
     if (force.mag() > breaking_stress) {broken = true; return;}
-    left.applyForce(force);
-    right.applyForce(force.mult(-1));
+    left_node.applyForce(force);
+    right_node.applyForce(force.mult(-1));
   }
 
   public void shear() {
     float angle;
-    angle = -1 * wayto(left.position, right.position).heading();
-    angle = angto(left.angle, angle);
-    angle = angto(left_ang, angle);
-    left.applyAngForce(angle*deflection);
-    right.applyForce(wayto(left.position, right.position).normalize().rotate(-1*HALF_PI).mult(angle*deflection));
-    angle = -1 * wayto(right.position, left.position).heading();
-    angle = angto(right.angle, angle);
-    angle = angto(right_ang, angle);
-    right.applyAngForce(angle*deflection);
-    left.applyForce(wayto(right.position, left.position).normalize().rotate(-1*HALF_PI).mult(angle*deflection));
+    angle = -1 * wayto(left_node.position, right_node.position).heading();
+    angle = angto(left_node.angle, angle);
+    angle = angto(joint_true_left_ang, angle);
+    left_node.applyAngForce(angle*deflection);
+    right_node.applyForce(wayto(left_node.position, right_node.position).normalize().rotate(HALF_PI).mult(angle*deflection*length));
+    angle = -1 * wayto(right_node.position, left_node.position).heading();
+    angle = angto(right_node.angle, angle);
+    angle = angto(joint_true_right_ang, angle);
+    right_node.applyAngForce(angle*deflection);
+    left_node.applyForce(wayto(right_node.position, left_node.position).normalize().rotate(HALF_PI).mult(angle*deflection*length));
   }
 
 }

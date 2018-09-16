@@ -207,7 +207,8 @@ class Fluid {
           if (!boundary[i][j-1]) {x[i][j] += x[i][j-1]; surround++;}
           if (!boundary[i][j+1]) {x[i][j] += x[i][j+1]; surround++;}
           if (surround != 0) x[i][j] /= surround;
-          if ((b==1)||(b==2)) x[i][j] *= -1;
+          if ((b==1)||(b==2)) x[i][j] *= -1; // creates reaction & friction force from surface
+          // TODO seperate reaction & friction forces
         }
       }
     }

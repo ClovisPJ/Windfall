@@ -12,8 +12,20 @@ class Part{
     }
 
     public float angto(float from, float to) {
-      float ang = (to - from) % TWO_PI;
-      return (ang > PI) ? TWO_PI - ang : ang;
+      float ang = mod(to - from + PI, TWO_PI) - PI;
+      return ang;
+      //return (ang > PI) ? ang - TWO_PI : ang;
+    }
+
+    private float mod(float x, float y) {
+      if (x > y) {
+        return mod(x - y, y);
+      } else if (x < 0) {
+        return mod(x + y, y);
+      } else if ((x <= y) && (x >= 0)) {
+        return x;
+      }
+      return 0;
     }
 
 }

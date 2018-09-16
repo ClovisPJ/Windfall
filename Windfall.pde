@@ -7,7 +7,7 @@ void setup() {
   lock = false;
   N = 200;
   size(201, 201, P2D);
-  leaf = new Leaf(60, 60);
+  leaf = new Leaf(100, 100);
   fluid = new Fluid(N);
 }
 
@@ -25,14 +25,14 @@ void draw() {
 }
 
 void mouseClicked() {
-//  leaf.nodes.get(0).position = new PVector(mouseX, mouseY);
   if (!lock) {
     if (keyPressed == true && keyCode == SHIFT) {
       fluid.add_dens(mouseX, mouseY, 20);
     } else if (keyPressed == true && keyCode == CONTROL) {
       fluid.add_boundary(mouseX, mouseY, 20);
     } else {
-      fluid.divergence(mouseX, mouseY, 20);
+      //fluid.divergence(mouseX, mouseY, 20);
+      leaf.nodes.get(0).position = new PVector(mouseX, mouseY);
     }
   }
 }
