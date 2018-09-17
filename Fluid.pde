@@ -36,6 +36,7 @@ class Fluid {
   public void draw_point(float[][] x) {
     for (int i = 0; i < N+2; i++) {
       for (int j = 0; j < N+2; j++) {
+        strokeWeight(1);
         stroke(255-x[i][j]);
         if (boundary[i][j]) stroke(255,0,0);
         point(i, j);
@@ -46,6 +47,7 @@ class Fluid {
   public void draw_arrow(float[][] u, float[][] v) {
     for (int i = 0; i < N+2; i+=10) {
       for (int j = 0; j < N+2; j+=10) {
+        strokeWeight(1);
         stroke(255, 0, 0);
         line(i, j, i + 1000*u[i][j], j + 1000*v[i][j]);
       }

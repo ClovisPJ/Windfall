@@ -19,7 +19,7 @@ class Joint extends Part {
     this.length = length;
     stiffness = 0.06;
     deflection = 0.01;
-    breaking_stress = 10;
+    breaking_stress = 1;
     broken = false;
   }
 
@@ -39,16 +39,15 @@ class Joint extends Part {
 
   public void shear() {
     float angle;
-    angle = -1 * wayto(left_node.position, right_node.position).heading();
+    angle = angto(left_node.position, right_node.position);
     angle = angto(left_node.angle, angle);
     angle = angto(joint_true_left_ang, angle);
     left_node.applyAngForce(angle*deflection);
     right_node.applyForce(wayto(left_node.position, right_node.position).normalize().rotate(HALF_PI).mult(angle*deflection*length));
-    angle = -1 * wayto(right_node.position, left_node.position).heading();
+    angle = angto(right_node.position, left_node.position);
     angle = angto(right_node.angle, angle);
     angle = angto(joint_true_right_ang, angle);
     right_node.applyAngForce(angle*deflection);
     left_node.applyForce(wayto(right_node.position, left_node.position).normalize().rotate(HALF_PI).mult(angle*deflection*length));
   }
-
 }

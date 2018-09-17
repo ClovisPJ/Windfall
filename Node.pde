@@ -12,14 +12,14 @@ class Node extends Part {
   float radius;
 
   public Node(PVector position, float angle) {
-    this.position = position;
+    this.position = position.copy();
     this.velocity = new PVector(0,0);
     this.acceleration = new PVector(0,0);
     this.angle = angle;
     this.ang_velocity = 0;
     this.ang_acceleration = 0;
     this.mass = 0.01;
-    this.radius = 10;
+    this.radius = 3;
   }
 
   public void applyForce(PVector force) {
@@ -33,7 +33,7 @@ class Node extends Part {
   }
 
   public void run() {
-    show();
+//    show();
     update();
     limits();
   }

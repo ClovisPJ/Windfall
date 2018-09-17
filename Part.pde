@@ -17,15 +17,19 @@ class Part{
       //return (ang > PI) ? ang - TWO_PI : ang;
     }
 
+    public float angto(PVector from, PVector to) {
+      return -1 * wayto(from, to).heading();
+    }
+
     private float mod(float x, float y) {
       if (x > y) {
         return mod(x - y, y);
       } else if (x < 0) {
         return mod(x + y, y);
-      } else if ((x <= y) && (x >= 0)) {
+      //} else if ((x <= y) && (x >= 0)) {
+      } else {
         return x;
       }
-      return 0;
     }
 
 }

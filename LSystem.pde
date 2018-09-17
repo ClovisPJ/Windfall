@@ -1,14 +1,12 @@
 class LSystem {
     
     private String axiom;
-    private int n;
     private String pattern;
 
     ArrayList<LSystemRule> rules;
     
-    public LSystem(String axiom, int n) {
+    public LSystem(String axiom) {
         this.axiom = axiom;
-        this.n = n;
         rules = new ArrayList<LSystemRule>();
     }
 
@@ -16,7 +14,7 @@ class LSystem {
         rules.add(rule);
     }
 
-    public void generate() {
+    public void generate(int n) {
         pattern = generateHelper(axiom, n);
     }
 
@@ -28,7 +26,6 @@ class LSystem {
         for (char g : gen.toCharArray()) {
             for (LSystemRule lsr : rules) {
                 if (String.valueOf(g).equals(lsr.pre)) {
-                    //println("appending: '" + next_gen + "' to: '" + lsr.post + "'");
                     next_gen.append(lsr.post);
                     break;
                 }
