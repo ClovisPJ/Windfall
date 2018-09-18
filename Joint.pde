@@ -1,4 +1,4 @@
-class Joint extends Part {
+class Joint extends Utils {
 
     Node left_node;
     float joint_true_left_ang;

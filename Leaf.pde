@@ -1,4 +1,4 @@
-class Leaf extends Part {
+class Leaf extends Utils {
 
     ArrayList<Node> nodes;
     ArrayList<Joint> joints;
@@ -6,17 +6,18 @@ class Leaf extends Part {
 
     float node_mass;
     float node_radius;
-
+    float joint_length;
     float joint_stiffness;
     float joint_deflection;
     float joint_breaking_stress;
 
     public Leaf(int x, int y) {
-        node_mass = 3;
         node_mass = 0.01;
+        node_radius = 10;
+        joint_length = 3;
         joint_stiffness = 0.006;
         joint_deflection = 0.001;
-        joint_breaking_stress = 0.1;
+        joint_breaking_stress = 1;
 
         nodes = new ArrayList<Node>();
         joints = new ArrayList<Joint>();
@@ -28,7 +29,18 @@ class Leaf extends Part {
         lsys.addRule(lsys.new LSystemRule("F","FF"));
         lsys.generate(3);
 
-        build(lsys.show(), 3, PI/4, new PVector(x,y), 0, 0);
+        build(lsys.show(), PI/4, new PVector(x,y), 0, 0);
+
+        /*Node n1 = new Node(new PVector(x, y), node_mass, node_radius);
+        Node n2 = new Node(new PVector(x+joint_length, y), node_mass, node_radius);
+        Node n3 = new Node(new PVector(x+joint_length, y+joint_length), node_mass, node_radius);
+        nodes.add(n1);
+        nodes.add(n2);
+        nodes.add(n3);
+        Joint j1 = new Joint(n1, 0, n2, PI, joint_length, joint_stiffness, joint_deflection, joint_breaking_stress);
+        Joint j2 = new Joint(n2, 3*PI/2, n3, PI/2, joint_length, joint_stiffness, joint_deflection, joint_breaking_stress);
+        joints.add(j1);
+        joints.add(j2);*/
     }
 
     public void run(float energy_loss) {
@@ -40,7 +52,7 @@ class Leaf extends Part {
         }
     }
 
-    public int build(String instr, float size, float mod_angle, PVector turtle_position, float turtle_angle, int node_pos) {
+    public int build(String instr, float mod_angle, PVector turtle_position, float turtle_angle, int node_pos) {
         assert(instr != null || instr.length() > 0);
         PVector turtle_position_copy = turtle_position.copy();
         int len = 0;
@@ -50,17 +62,17 @@ class Leaf extends Part {
             if (skip > 0) {skip--; continue;}
             switch (cmd) {
                 case '[':
-                    skip = build(instr.substring(len), size, mod_angle, turtle_position_copy, turtle_angle, node_pos);
+                    skip = build(instr.substring(len), mod_angle, turtle_position_copy, turtle_angle, node_pos);
                     break;
                 case ']':
                     return len;
                 case 'F':
-                    turtle_position_copy.add(new PVector(size,0).rotate(turtle_angle));
+                    turtle_position_copy.add(new PVector(joint_length,0).rotate(turtle_angle));
                     Node node_a = nodes.get(node_pos);
                     node_pos = nodes.size();
                     Node node_b = new Node(turtle_position_copy, node_mass, node_radius);
                     float ang = angto(node_a.position, node_b.position);
-                    Joint j = new Joint(node_a, ang, node_b, ang+PI, size, joint_stiffness, joint_deflection, joint_breaking_stress);
+                    Joint j = new Joint(node_a, ang, node_b, ang+PI, joint_length, joint_stiffness, joint_deflection, joint_breaking_stress);
                     nodes.add(node_b);
                     joints.add(j);
                     break;
@@ -78,17 +90,18 @@ class Leaf extends Part {
     }
 
     public void render() {
-        /* METHOD 1 BALL JOINTS
-        for (Node n : nodes) {
+        // METHOD 1 BALL JOINTS
+        /*for (Node n : nodes) {
             stroke(0);
             strokeWeight(1);
             ellipse(n.position.x, n.position.y, n.radius*2, n.radius*2); 
 
             stroke(255,0,0);
-            float k = 80;
+            float k = 100;
             line(n.position.x, n.position.y, n.position.x + n.acceleration.x*k, n.position.y + n.acceleration.y*k);
         }
         for (Joint j : joints) {
+            if (j.broken) {continue;}
             PVector left_point = PVector.add(j.left_node.position,
                                              new PVector(j.left_node.radius,0)
                                                  .rotate(-1*(j.left_node.angle+j.joint_true_left_ang)) );
@@ -102,9 +115,10 @@ class Leaf extends Part {
         // METHOD 2 LINES
         for (Joint j : joints) {
             if (j.broken) {continue;}
-            stroke(0,255,0);
-            strokeWeight(1);
-            line(j.left_node.position.x, j.left_node.position.y, j.right_node.position.x, j.right_node.position.y);
+            PVector joint = wayto(j.left_node.position, j.right_node.position);
+            draw_pointvector(j.left_node.position, joint);
+            joint = wayto(j.right_node.position, j.left_node.position);
+            draw_pointvector(j.right_node.position, joint);
         }
     }
 

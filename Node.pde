@@ -1,4 +1,4 @@
-class Node extends Part {
+class Node extends Utils {
 
     PVector position;
     // measured from top-left, down and across
@@ -51,10 +51,13 @@ class Node extends Part {
     }
 
     public void limits() {
+        PVector pos_copy = position.copy();
+        position.x = mod(pos_copy.x, width);
+        position.y = mod(pos_copy.y, height);
         /*if (position.x < -radius) position.x = width+radius;
         if (position.y < -radius) position.y = height+radius;
         if (position.x > width+radius) position.x = -radius;
-        if (position.y > height+radius) position.y = -radius;*/
+        if (position.y > height+radius) position.y = -radius;
         if (position.x < 0) {
             position.x = 0;
             velocity.x = abs(velocity.x);
@@ -70,7 +73,7 @@ class Node extends Part {
         if (position.y > height) {
             position.y = height;
             velocity.y = -abs(velocity.y);
-        }
+        }*/
     }
 
 }
