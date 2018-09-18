@@ -14,9 +14,9 @@ class Leaf extends Part {
     public Leaf(int x, int y) {
         node_mass = 3;
         node_mass = 0.01;
-        joint_stiffness = 0.06;
-        joint_deflection = 0.01;
-        joint_breaking_stress = 0.0001;
+        joint_stiffness = 0.006;
+        joint_deflection = 0.001;
+        joint_breaking_stress = 0.1;
 
         nodes = new ArrayList<Node>();
         joints = new ArrayList<Joint>();
@@ -101,6 +101,7 @@ class Leaf extends Part {
         }*/
         // METHOD 2 LINES
         for (Joint j : joints) {
+            if (j.broken) {continue;}
             stroke(0,255,0);
             strokeWeight(1);
             line(j.left_node.position.x, j.left_node.position.y, j.right_node.position.x, j.right_node.position.y);

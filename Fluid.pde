@@ -12,8 +12,6 @@ class Fluid {
     float dt;
     int N;
 
-    color dens_full_color;
-    color dens_empty_color;
     color boundary_color;
     color field_color;
     float density_scale;
@@ -32,12 +30,10 @@ class Fluid {
         dt = 0.2;
         this.N = N;
 
-        dens_full_color = color(0,0,0);
-        dens_empty_color = color(255,255,255);
         boundary_color = color(255,0,0);
         field_color = color(255,0,0);
-        density_scale = 0.01;
-        field_scale = 10;
+        density_scale = 10;
+        field_scale = 1000;
     }
 
 
@@ -66,7 +62,7 @@ class Fluid {
         for (int i = 0; i < N+2; i++) {
             for (int j = 0; j < N+2; j++) {
                 strokeWeight(1);
-                stroke(lerp(dens_empty_color, dens_full_color, density_scale*x[i][j]));
+                stroke(map(x[i][j], 0, density_scale, 255, 0));
                 if (boundary[i][j]) stroke(boundary_color);
                 point(i, j);
             }

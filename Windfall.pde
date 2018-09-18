@@ -8,8 +8,8 @@ int prevMouseY;
 
 void setup() {
     lock = false;
-    N = 150;
-    size(151, 151, P2D);
+    N = 300;
+    size(301, 301, P2D);
     leaf = new Leaf(30, 70);
     fluid = new Fluid(N);
 }
@@ -19,7 +19,7 @@ void draw() {
     lock = true;
     fluid.simulate();
     leaf.run(0.6);
-    fluid.draw();
+    //fluid.draw();
     leaf.render();
     for (Node n : leaf.nodes) {
        n.applyForce(fluid.field_vector((int)n.position.x, (int)n.position.y));
