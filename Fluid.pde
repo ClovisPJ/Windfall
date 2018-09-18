@@ -1,5 +1,3 @@
-import java.lang.Math;
-
 class Fluid {
 
     float[][] u;
@@ -14,6 +12,13 @@ class Fluid {
     float dt;
     int N;
 
+    color dens_full_color;
+    color dens_empty_color;
+    color boundary_color;
+    color field_color;
+    float density_scale;
+    float field_scale;
+
     public Fluid(int N) {
         u = new float[N+2][N+2];
         v = new float[N+2][N+2];
@@ -26,102 +31,90 @@ class Fluid {
         diff = 0.0001;
         dt = 0.2;
         this.N = N;
+
+        dens_full_color = color(0,0,0);
+        dens_empty_color = color(255,255,255);
+        boundary_color = color(255,0,0);
+        field_color = color(255,0,0);
+        density_scale = 0.01;
+        field_scale = 10;
     }
+
+
+    private boolean checkBounds(int x, int y) {
+        return (x < N+1 && x > 0 && y < N+1 && y > 0);
+    }
+
+    public PVector field_vector(int x, int y) {
+        if (!checkBounds(x, y)) return new PVector(0,0);
+        return new PVector(u[x][y], v[x][y]);
+    }
+
+    public float dens(int x, int y) {
+        if (!checkBounds(x, y)) return 0.0;
+        return dens[x][y];
+    }
+
+    // DRAW METHODS
 
     public void draw() {
         draw_point(dens);
         draw_arrow(u, v);
     }
 
-    public void draw_point(float[][] x) {
+    private void draw_point(float[][] x) {
         for (int i = 0; i < N+2; i++) {
             for (int j = 0; j < N+2; j++) {
                 strokeWeight(1);
-                stroke(255-x[i][j]);
-                if (boundary[i][j]) stroke(255,0,0);
+                stroke(lerp(dens_empty_color, dens_full_color, density_scale*x[i][j]));
+                if (boundary[i][j]) stroke(boundary_color);
                 point(i, j);
             }
         }
     }
 
-    public void draw_arrow(float[][] u, float[][] v) {
+    private void draw_arrow(float[][] u, float[][] v) {
         for (int i = 0; i < N+2; i+=10) {
             for (int j = 0; j < N+2; j+=10) {
                 strokeWeight(1);
-                stroke(255, 0, 0);
-                line(i, j, i + 1000*u[i][j], j + 1000*v[i][j]);
+                stroke(field_color);
+                line(i, j, i + field_scale*u[i][j], j + field_scale*v[i][j]);
             }
         }
     }
 
+    // CREATE METHODS
+
     public void add_dens(int x, int y, int r) {
-        for (int i = x-r/2; i < x+r/2; i++) {
-            for (int j = y-r/2; j < y+r/2; j++) {
-                if (i > N || j > N) continue;
-                dens[i][j] += 100;
-            }
-        }
+        add_brush(dens, x, y, 1, r);
+    }
+
+    public void add_vector(int x, int y, int prev_x, int prev_y, int r) {
+        add_brush(u, x, y, x - prev_x, r);
+        add_brush(v, x, y, y - prev_y, r);
     }
 
     public void add_boundary(int x, int y, int r) {
         for (int i = x-r/2; i < x+r/2; i++) {
             for (int j = y-r/2; j < y+r/2; j++) {
-                if (i > N || j > N) continue;
+                if (!checkBounds(i, j)) continue;
                 boundary[i][j] = true;
             }
         }
     }
 
-    public PVector field_vector(int x, int y) {
-        return new PVector(u[x][y], v[x][y]);
-    }
-
-    public void simulate() {
-        u_prev = new float[N+2][N+2];
-        v_prev = new float[N+2][N+2];
-        dens_prev = new float[N+2][N+2];
-        vel_step(N, u, v, u_prev, v_prev, visc, dt);
-        dens_step(N, dens, dens_prev, u, v, diff, dt);
-    }
-
-    public void divergence (int x, int y, int r) {
-        for (int i = x - r; i <= x + r; i++) {
-            for (int j = y - r; j <= y + r; j++) {
-                float a = Math.signum(i - x) * -map(abs(i - x), 0, r, -1, 0);
-                float b = Math.signum(j - y) * -map(abs(j - y), 0, r, -1, 0);
-                if (i > N || j > N) continue;
-                u[i][j] += 0.1*a;
-                v[i][j] += 0.1*b;
+    private void add_brush (float[][] f, int x, int y, int power, int r) {
+        for (int i = x - r/2; i <= x + r/2; i++) {
+            for (int j = y - r/2; j <= y + r/2; j++) {
+                if (!checkBounds(i, j)) continue;
+                float strength = sqrt((x-i)*(x-i) + (y-j)*(y-j));
+                f[i][j] += (1 - strength / r) * power;
+                // 'strength / r' varies on [0, 1/sqrt(2)]
             }
         }
     }
 
-    public void dens_step(int N, float[][] x, float[][] x0, float[][] u, float[][] v, float diff, float dt) {
-        float[][] temp;
-        add_source(N, x, x0, dt);
-        temp = x0; x0 = x; x = temp;
-        diffuse(N, 0, x, x0, diff, dt);
-        temp = x0; x0 = x; x = temp;
-        advect(N, 0, x, x0, u, v, dt);
-    }
-
-    public void vel_step(int N, float[][] u, float[][] v, float[][] u0, float[][] v0, float visc, float dt) {
-        float[][] temp;
-        add_source(N, u, u0, dt);
-        add_source(N, v, v0, dt);
-        temp = u0; u0 = u; u = temp;
-        temp = v0; v0 = v; v = temp;
-        diffuse(N, 1, u, u0, visc, dt);
-        diffuse(N, 2, v, v0, visc, dt);
-        project(N, u, v, u0, v0);
-        temp = u0; u0 = u; u = temp;
-        temp = v0; v0 = v; v = temp;
-        advect(N, 1, u, u0, u0, v0, dt);
-        advect(N, 2, v, v0, u0, v0, dt);
-        project(N, u, v, u0, v0);
-    }
-
-    public void add_source(int N, float[][] x, float[][] s, float dt) {
+    public void add_field (float[][] x, float[][] s, float dt) {
         for (int i = 0; i <= (N+1); i++) {
             for (int j = 0; j <= (N+1); j++) {
                 x[i][j] += dt * s[i][j];
@@ -129,7 +122,42 @@ class Fluid {
         }
     }
 
-    public void diffuse (int N, int b, float[][] x, float[][] x0, float diff, float dt) {
+    // FLUID MECH METHODS
+
+    public void simulate() {
+        u_prev = new float[N+2][N+2];
+        v_prev = new float[N+2][N+2];
+        dens_prev = new float[N+2][N+2];
+        vel_step(u, v, u_prev, v_prev, visc, dt);
+        dens_step(dens, dens_prev, u, v, diff, dt);
+    }
+
+    public void dens_step(float[][] x, float[][] x0, float[][] u, float[][] v, float diff, float dt) {
+        float[][] temp;
+        add_field(x, x0, dt);
+        temp = x0; x0 = x; x = temp;
+        diffuse(0, x, x0, diff, dt);
+        temp = x0; x0 = x; x = temp;
+        advect(0, x, x0, u, v, dt);
+    }
+
+    public void vel_step(float[][] u, float[][] v, float[][] u0, float[][] v0, float visc, float dt) {
+        float[][] temp;
+        add_field(u, u0, dt);
+        add_field(v, v0, dt);
+        temp = u0; u0 = u; u = temp;
+        temp = v0; v0 = v; v = temp;
+        diffuse(1, u, u0, visc, dt);
+        diffuse(2, v, v0, visc, dt);
+        project(u, v, u0, v0);
+        temp = u0; u0 = u; u = temp;
+        temp = v0; v0 = v; v = temp;
+        advect(1, u, u0, u0, v0, dt);
+        advect(2, v, v0, u0, v0, dt);
+        project(u, v, u0, v0);
+    }
+
+    public void diffuse (int b, float[][] x, float[][] x0, float diff, float dt) {
         float a = dt*diff*N*N;
 
         for (int k = 0; k < 20; k++) {
@@ -138,11 +166,11 @@ class Fluid {
                     x[i][j] = ( x0[i][j] + a * (x[i-1][j] + x[i+1][j] + x[i][j-1] + x[i][j+1]) ) / (1 + 4*a);
                 }
             }
-            set_bnd(N, b, x);
+            set_bnd(b, x);
         }
     }
 
-    public void advect(int N, int b, float[][] d, float[][] d0, float[][] u, float[][] v, float dt) {
+    public void advect(int b, float[][] d, float[][] d0, float[][] u, float[][] v, float dt) {
         int i0, j0, i1, j1;
         float x, y, s0, t0, s1, t1, dt0;
         dt0 = dt*N;
@@ -156,10 +184,10 @@ class Fluid {
                     s1 * ( t0*d0[i1][j0] + t1*d0[i1][j1] );
             }
         }
-        set_bnd(N, b, d);
+        set_bnd(b, d);
     }
 
-    public void project(int N, float[][] u, float[][] v, float[][] p, float[][] div) {
+    public void project(float[][] u, float[][] v, float[][] p, float[][] div) {
         float h = 1.0/N;
         for (int i = 1; i <= N; i++) {
             for (int j = 1; j <= N; j++) { div[i][j] = -0.5*h*(u[i+1][j] - u[i-1][j] + 
@@ -167,7 +195,7 @@ class Fluid {
             p[i][j] = 0;
             }
         }
-        set_bnd(N, 0, div); set_bnd(N, 0, p);
+        set_bnd(0, div); set_bnd(0, p);
 
         for (int k = 0; k < 20; k++) {
             for (int i = 1; i <= N; i++) {
@@ -175,7 +203,7 @@ class Fluid {
                     p[i][j] = (div[i][j] + p[i-1][j] + p[i+1][j] + p[i][j-1] + p[i][j+1]) / 4;
                 }
             }
-            set_bnd(N, 0, p);
+            set_bnd(0, p);
         }
 
         for (int i = 1; i <= N; i++) {
@@ -184,10 +212,10 @@ class Fluid {
                 v[i][j] -= 0.5 * (p[i][j+1] - p[i][j-1]) / h;
             }
         }
-        set_bnd(N, 1, u); set_bnd(N, 2, v);
+        set_bnd(1, u); set_bnd(2, v);
     }
 
-    public void set_bnd(int N, int b, float[][] x) {
+    public void set_bnd(int b, float[][] x) {
         for (int i = 1; i <= N; i++) {
             x[0][i] = (b==1) ? -x[1][i] : x[1][i];
             x[N+1][i] = (b==1) ? -x[N][i] : x[N][i];

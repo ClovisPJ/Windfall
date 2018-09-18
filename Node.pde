@@ -11,15 +11,15 @@ class Node extends Part {
     float mass;
     float radius;
 
-    public Node(PVector position, float angle) {
+    public Node(PVector position, float mass, float radius) {
         this.position = position.copy();
         this.velocity = new PVector(0,0);
         this.acceleration = new PVector(0,0);
-        this.angle = angle;
+        this.angle = 0;
         this.ang_velocity = 0;
         this.ang_acceleration = 0;
-        this.mass = 0.01;
-        this.radius = 3;
+        this.mass = mass;
+        this.radius = radius;
     }
 
     public void applyForce(PVector force) {
@@ -32,15 +32,14 @@ class Node extends Part {
         constrain(ang_acceleration, -1, 1);
     }
 
-    public void run() {
-        //show();
-        update();
+    public void run(float energy_loss) {
+        update(energy_loss);
         limits();
     }
 
-    public void update() {
-        velocity.mult(0.4);
-        ang_velocity *= 0.4;
+    public void update(float energy_loss) {
+        velocity.mult(energy_loss);
+        ang_velocity *= energy_loss;
 
         velocity.add(acceleration);
         position.add(velocity);
@@ -66,18 +65,12 @@ class Node extends Part {
         }
         if (position.x > width) {
             position.x = width;
-            velocity.x = -1 * abs(velocity.x);
+            velocity.x = -abs(velocity.x);
         }
         if (position.y > height) {
             position.y = height;
-            velocity.y = -1 * abs(velocity.y);
+            velocity.y = -abs(velocity.y);
         }
-    }
-
-    public void show() {
-        stroke(255, 0, 0);
-        float k = 80;
-        line(position.x, position.y, position.x + acceleration.x*k, position.y + acceleration.y*k);
     }
 
 }

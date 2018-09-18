@@ -14,7 +14,6 @@ class Part{
     public float angto(float from, float to) {
         float ang = mod(to - from + PI, TWO_PI) - PI;
         return ang;
-        //return (ang > PI) ? ang - TWO_PI : ang;
     }
 
     public float angto(PVector from, PVector to) {
@@ -26,10 +25,9 @@ class Part{
             return mod(x - y, y);
         } else if (x < 0) {
             return mod(x + y, y);
-            //} else if ((x <= y) && (x >= 0)) {
-    } else {
-        return x;
-    }
+        } else {
+            return x;
+        }
     }
 
 }
