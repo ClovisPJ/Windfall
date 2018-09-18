@@ -1,10 +1,10 @@
 class LSystem {
-    
+
     private String axiom;
     private String pattern;
 
     ArrayList<LSystemRule> rules;
-    
+
     public LSystem(String axiom) {
         this.axiom = axiom;
         rules = new ArrayList<LSystemRule>();
@@ -40,15 +40,15 @@ class LSystem {
     }
 
     public class LSystemRule {
-    
+
         public String pre;
         public String post;
-        
+
         public LSystemRule(String pre, String post) {
-             this.pre = pre;
-             this.post = post;
+            this.pre = pre;
+            this.post = post;
         }
-    
+
     }
 
 }
