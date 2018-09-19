@@ -7,9 +7,9 @@ class Fluid extends Utils{
     float[][] dens;
     float[][] dens_prev;
     boolean[][] boundary;
-    float visc;
-    float diff;
-    float dt;
+    MutableFloat visc;
+    MutableFloat diff;
+    MutableFloat dt;
     int N;
 
     color boundary_color;
@@ -25,9 +25,9 @@ class Fluid extends Utils{
         dens = new float[N][N];
         dens_prev = new float[N][N];
         boundary = new boolean[N][N];
-        visc = 1;
-        diff = 1;
-        dt = 1;
+        visc = new MutableFloat(1);
+        diff = new MutableFloat(1);
+        dt = new MutableFloat(1);
         this.N = N;
 
         boundary_color = color(255,0,0);
@@ -49,6 +49,15 @@ class Fluid extends Utils{
         if (!checkBounds(x, y)) return 0.0;
         return get(dens,x,y);
     }
+
+    // FLUID VARS EDIT METHODS
+
+    public float getVisc() { return visc.get(); }
+    public void setVisc(float visc) { this.visc.set(visc); }
+    public float getDiff() { return diff.get(); }
+    public void setDiff(float diff) { this.diff.set(diff); }
+    public float getDt() { return dt.get(); }
+    public void setDt(float dt) { this.dt.set(dt); }
 
     // SET/GET METHODS
 
@@ -158,8 +167,8 @@ class Fluid extends Utils{
         u_prev = new float[N][N];
         v_prev = new float[N][N];
         dens_prev = new float[N][N];
-        vel_step(u, v, u_prev, v_prev, visc, dt);
-        dens_step(dens, dens_prev, u, v, diff, dt);
+        vel_step(u, v, u_prev, v_prev, visc.get(), dt.get());
+        dens_step(dens, dens_prev, u, v, diff.get(), dt.get());
     }
 
     public void dens_step(float[][] x, float[][] x0, float[][] u, float[][] v, float diff, float dt) {
