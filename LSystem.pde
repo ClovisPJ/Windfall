@@ -2,19 +2,23 @@ class LSystem {
 
     private String axiom;
     private String pattern;
+    private int n;
+    private float mod_ang;
 
     ArrayList<LSystemRule> rules;
 
-    public LSystem(String axiom) {
+    public LSystem(String axiom, int n, float mod_ang) {
         this.axiom = axiom;
         rules = new ArrayList<LSystemRule>();
+        this.n = n;
+        this.mod_ang = mod_ang;
     }
 
     public void addRule(LSystemRule rule) {
         rules.add(rule);
     }
 
-    public void generate(int n) {
+    public void generate() {
         pattern = generateHelper(axiom, n);
     }
 
@@ -37,6 +41,10 @@ class LSystem {
 
     public String show() {
         return pattern;
+    }
+
+    public float mod_ang() {
+        return mod_ang;
     }
 
     public class LSystemRule {

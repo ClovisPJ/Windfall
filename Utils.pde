@@ -1,4 +1,4 @@
-class Utils{
+class Utils {
 
     public PVector wayto(PVector from, PVector to) {
         PVector vec = new PVector();

@@ -1,4 +1,4 @@
-class Fluid extends Utils{
+class Fluid extends Utils {
 
     float[][] u;
     float[][] v;
@@ -98,9 +98,9 @@ class Fluid extends Utils{
 
     // DRAW METHODS
 
-    public void draw() {
-        draw_point(dens);
-        draw_arrow(u, v);
+    public void draw(boolean draw_dens, boolean draw_field) {
+        if (draw_dens) draw_point(dens);
+        if (draw_field) draw_arrow(u, v);
     }
 
     private void draw_point(float[][] x) {
@@ -255,15 +255,15 @@ class Fluid extends Utils{
     public void set_bnd(int b, float[][] x) {
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                if (boundary[i][j]) {
-                    x[i][j] = 0;
+                if (get(boundary,i,j)) {
+                    set(x,i,j, 0);
                     int surround = 0;
-                    if (!boundary[i-1][j]) {x[i][j] += x[i-1][j]; surround++;}
-                    if (!boundary[i+1][j]) {x[i][j] += x[i+1][j]; surround++;}
-                    if (!boundary[i][j-1]) {x[i][j] += x[i][j-1]; surround++;}
-                    if (!boundary[i][j+1]) {x[i][j] += x[i][j+1]; surround++;}
-                    if (surround != 0) x[i][j] /= surround;
-                    if ((b==1)||(b==2)) x[i][j] *= -1; // creates reaction & friction force from surface
+                    if (!get(boundary,i-1,j)) {setAdd(x,i,j, get(x,i-1,j)); surround++;}
+                    if (!get(boundary,i+1,j)) {setAdd(x,i,j, get(x,i+1,j)); surround++;}
+                    if (!get(boundary,i,j-1)) {setAdd(x,i,j, get(x,i,j-1)); surround++;}
+                    if (!get(boundary,i,j+1)) {setAdd(x,i,j, get(x,i,j+1)); surround++;}
+                    if (surround != 0) set(x,i,j, get(x,i,j) / surround);
+                    if ((b==1)||(b==2)) set(x,i,j,-get(x,i,j)); // creates reaction & friction force from surface
                     // TODO seperate reaction & friction forces
                 }
             }

@@ -1,8 +1,11 @@
-class Leaf extends Utils {
+class Leaf extends Utils implements Cloneable {
 
     ArrayList<Node> nodes;
     ArrayList<Joint> joints;
     LSystem lsys;
+
+    PVector location;
+    float ang;
 
     float node_mass;
     float node_radius;
@@ -11,25 +14,20 @@ class Leaf extends Utils {
     float joint_deflection;
     float joint_breaking_stress;
 
-    public Leaf(int x, int y) {
-        node_mass = 0.01;
-        node_radius = 10;
-        joint_length = 3;
-        joint_stiffness = 0.006;
-        joint_deflection = 0.001;
-        joint_breaking_stress = 1;
+    public Leaf(PVector location, float ang, float node_mass, float node_radius, float joint_length, float joint_stiffness, float joint_deflection, float joint_breaking_stress, LSystem lsys) {
+        this.location = location;
+        this.ang = ang;
+        this.node_mass = node_mass;
+        this.node_radius = node_radius;
+        this.joint_length = joint_length;
+        this.joint_stiffness = joint_stiffness;
+        this.joint_deflection = joint_deflection;
+        this.joint_breaking_stress = joint_breaking_stress;
+        this.lsys = lsys;
 
         nodes = new ArrayList<Node>();
         joints = new ArrayList<Joint>();
-        Node n = new Node(new PVector(x, y), node_mass, node_radius);
-        nodes.add(n);
-
-        lsys = new LSystem("X");
-        lsys.addRule(lsys.new LSystemRule("X","F+[[X]-X]-F[-FX]+X"));
-        lsys.addRule(lsys.new LSystemRule("F","FF"));
-        lsys.generate(3);
-
-        build(lsys.show(), PI/4, new PVector(x,y), 0, 0);
+        nodes.add(new Node(location, node_mass, node_radius));
 
         /*Node n1 = new Node(new PVector(x, y), node_mass, node_radius);
         Node n2 = new Node(new PVector(x+joint_length, y), node_mass, node_radius);
@@ -43,6 +41,11 @@ class Leaf extends Utils {
         joints.add(j2);*/
     }
 
+    public void build() {
+        lsys.generate();
+        build(lsys.show(), lsys.mod_ang(), location, ang, 0);
+    }
+
     public void run(float energy_loss) {
         for (Node n : nodes) {
             n.run(energy_loss);
@@ -52,7 +55,7 @@ class Leaf extends Utils {
         }
     }
 
-    public int build(String instr, float mod_angle, PVector turtle_position, float turtle_angle, int node_pos) {
+    private int build(String instr, float mod_angle, PVector turtle_position, float turtle_angle, int node_pos) {
         assert(instr != null || instr.length() > 0);
         PVector turtle_position_copy = turtle_position.copy();
         int len = 0;
@@ -113,6 +116,20 @@ class Leaf extends Utils {
             line(left_point.x, left_point.y, right_point.x, right_point.y);
         }*/
         // METHOD 2 LINES
+        /*
+        for (Joint j : joints) {
+            if (j.broken) {continue;}
+            PVector joint = wayto(j.left_node.position, j.right_node.position);
+            draw_pointvector(j.left_node.position, joint);
+            joint = wayto(j.right_node.position, j.left_node.position);
+            draw_pointvector(j.right_node.position, joint);
+        }*/
+        // METHOD 3 LINES AND POINTS
+        for (Node n : nodes) {
+            stroke(0);
+            strokeWeight(1);
+            point(n.position.x, n.position.y);
+        }
         for (Joint j : joints) {
             if (j.broken) {continue;}
             PVector joint = wayto(j.left_node.position, j.right_node.position);

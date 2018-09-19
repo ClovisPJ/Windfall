@@ -1,6 +1,6 @@
-class MutableFloat{
+class MutableFloat {
 
-    float f;
+    private float f;
 
     public MutableFloat(float f) {
         set(f);
