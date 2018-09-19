@@ -1,5 +1,5 @@
-Leaf leaf;
 Fluid fluid;
+ArrayList<Leaf> leaves;
 int N;
 
 int prevMouseX;
@@ -10,10 +10,11 @@ boolean key_log;
 TextBox selected_tb;
 
 void setup() {
-    N = 200;
-    size(200, 200, P2D);
-    leaf = new Leaf(30, 70);
+    N = 400;
+    size(400, 400, P2D);
+    pixelDensity(1);
     fluid = new Fluid(N+1);
+    leaves = new ArrayList<Leaf>();
 
     PVector tb_size = new PVector(50,15);
     tb_list = new ArrayList<TextBox>();
@@ -27,11 +28,13 @@ void setup() {
 void draw() {
     background(255);
     fluid.simulate();
-    leaf.run(0.6);
     fluid.draw();
-    leaf.render();
-    for (Node n : leaf.nodes) {
-        n.applyForce(fluid.field_vector((int)n.position.x, (int)n.position.y));
+    for (Leaf leaf : leaves) {
+        leaf.run(0.6);
+        leaf.render();
+        for (Node n : leaf.nodes) {
+            n.applyForce(fluid.field_vector((int)n.position.x, (int)n.position.y));
+        }
     }
     for (TextBox tb : tb_list) {
         tb.show();
@@ -39,10 +42,12 @@ void draw() {
 }
 
 void mouseClicked() {
-    if (keyPressed == true && keyCode == CONTROL) {
+    if (keyPressed && key == 'b') {
         fluid.add_boundary(mouseX, mouseY, 20);
-    } else {
+    } else if (keyPressed && key == 'd') {
         fluid.add_dens(mouseX, mouseY, 20);
+    } else {
+        leaves.add(new Leaf(mouseX, mouseY));
     }
     prevMouseX = mouseX;
     prevMouseY = mouseY;
@@ -62,13 +67,14 @@ void mouseClicked() {
 }
 
 void mouseDragged() {
-    if (keyPressed == true && keyCode == SHIFT) {
+    if (keyPressed && key == 'v') {
         fluid.add_vector(mouseX, mouseY, prevMouseX, prevMouseY, 10);
-        //leaf.nodes.get(0).position = new PVector(mouseX, mouseY);
-    } else if (keyPressed == true && keyCode == CONTROL) {
+    } else if (keyPressed && key == 'b') {
         fluid.add_boundary(mouseX, mouseY, 20);
-    } else {
+    } else if (keyPressed && key == 'd') {
         fluid.add_dens(mouseX, mouseY, 20);
+    } else {
+        leaves.add(new Leaf(mouseX, mouseY));
     }
     prevMouseX = mouseX;
     prevMouseY = mouseY;
