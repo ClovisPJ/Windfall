@@ -6,10 +6,11 @@ class Fluid extends Utils {
     float[][] v_prev;
     float[][] dens;
     float[][] dens_prev;
-    boolean[][] boundary;
     MutableFloat visc;
     MutableFloat diff;
     MutableFloat dt;
+    float[][] reaction;
+    float[][] friction;
     int N;
 
     color boundary_color;
@@ -24,10 +25,11 @@ class Fluid extends Utils {
         v_prev = new float[N][N];
         dens = new float[N][N];
         dens_prev = new float[N][N];
-        boundary = new boolean[N][N];
         visc = new MutableFloat(1);
         diff = new MutableFloat(1);
         dt = new MutableFloat(1);
+        reaction = new float[N][N];
+        friction = new float[N][N];
         this.N = N;
 
         boundary_color = color(255,0,0);
@@ -41,13 +43,15 @@ class Fluid extends Utils {
     }
 
     public PVector field_vector(int x, int y) {
-        if (!checkBounds(x, y)) return new PVector(0,0);
         return new PVector(get(u,x,y), get(v,x,y));
     }
 
     public float dens(int x, int y) {
-        if (!checkBounds(x, y)) return 0.0;
         return get(dens,x,y);
+    }
+
+    public boolean boundary(int x, int y) {
+        return (get(friction,x,y) != 0) || (get(reaction,x,y) != 0);
     }
 
     // FLUID VARS EDIT METHODS
@@ -68,21 +72,7 @@ class Fluid extends Utils {
         return f[x][y];
     }
 
-    private boolean get(boolean[][] b, int x, int y) {
-        x = mod(x, width);
-        y = mod(y, height);
-        assert (checkBounds(x, y));
-        return b[x][y];
-    }
-
     private void set(float[][] f, int x, int y, float data) {
-        x = mod(x, width);
-        y = mod(y, height);
-        assert (checkBounds(x, y));
-        f[x][y] = data;
-    }
-
-    private void set(boolean[][] f, int x, int y, boolean data) {
         x = mod(x, width);
         y = mod(y, height);
         assert (checkBounds(x, y));
@@ -108,7 +98,7 @@ class Fluid extends Utils {
             for (int j = 0; j < N; j++) {
                 strokeWeight(1);
                 stroke(map(get(x,i,j), 0, density_scale, 255, 0));
-                if (get(boundary,i,j)) stroke(boundary_color);
+                if (boundary(i,j)) stroke(boundary_color);
                 point(i, j);
             }
         }
@@ -138,7 +128,8 @@ class Fluid extends Utils {
     public void add_boundary(int x, int y, int r) {
         for (int i = x-r/2; i < x+r/2; i++) {
             for (int j = y-r/2; j < y+r/2; j++) {
-                set(boundary,i,j,true);
+                set(reaction,i,j,1);
+                set(friction,i,j,0.7);
             }
         }
     }
@@ -169,6 +160,9 @@ class Fluid extends Utils {
         dens_prev = new float[N][N];
         vel_step(u, v, u_prev, v_prev, visc.get(), dt.get());
         dens_step(dens, dens_prev, u, v, diff.get(), dt.get());
+        set_bnd(0, dens);
+        set_bnd(1, u);
+        set_bnd(2, v);
     }
 
     public void dens_step(float[][] x, float[][] x0, float[][] u, float[][] v, float diff, float dt) {
@@ -178,7 +172,6 @@ class Fluid extends Utils {
         diffuse(0, x, x0, diff, dt);
         temp = x0; x0 = x; x = temp;
         advect(0, x, x0, u, v, dt);
-        set_bnd(0, dens);
     }
 
     public void vel_step(float[][] u, float[][] v, float[][] u0, float[][] v0, float visc, float dt) {
@@ -195,8 +188,6 @@ class Fluid extends Utils {
         advect(1, u, u0, u0, v0, dt);
         advect(2, v, v0, u0, v0, dt);
         project(u, v, u0, v0);
-        set_bnd(1, u);
-        set_bnd(2, v);
     }
 
     public void diffuse (int b, float[][] x, float[][] x0, float rate, float dt) {
@@ -255,16 +246,44 @@ class Fluid extends Utils {
     public void set_bnd(int b, float[][] x) {
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                if (get(boundary,i,j)) {
+                float fric, reac;
+                if (boundary(i,j)) {
+                    fric = get(friction,i,j);
+                    reac = get(reaction,i,j);
                     set(x,i,j, 0);
                     int surround = 0;
-                    if (!get(boundary,i-1,j)) {setAdd(x,i,j, get(x,i-1,j)); surround++;}
-                    if (!get(boundary,i+1,j)) {setAdd(x,i,j, get(x,i+1,j)); surround++;}
-                    if (!get(boundary,i,j-1)) {setAdd(x,i,j, get(x,i,j-1)); surround++;}
-                    if (!get(boundary,i,j+1)) {setAdd(x,i,j, get(x,i,j+1)); surround++;}
+                    float k;
+                    if (b==1) {
+                        k = -reac;
+                    } else if (b==2) {
+                        k = fric;
+                    } else {
+                        k = 1;
+                    }
+                    if (!boundary(i-1,j)) {
+                        setAdd(x,i,j, k*get(x,i-1,j));
+                        surround++;
+                    }
+                    if (!boundary(i+1,j)) {
+                        setAdd(x,i,j, k*get(x,i+1,j));
+                        surround++;
+                    }
+                    if (b==1) {
+                        k = fric;
+                    } else if (b==2) {
+                        k = -reac;
+                    } else {
+                        k = 1;
+                    }
+                    if (!boundary(i,j-1)) {
+                        setAdd(x,i,j, k*get(x,i,j-1));
+                        surround++;
+                    }
+                    if (!boundary(i,j+1)) {
+                        setAdd(x,i,j, k*get(x,i,j+1));
+                        surround++;
+                    }
                     if (surround != 0) set(x,i,j, get(x,i,j) / surround);
-                    if ((b==1)||(b==2)) set(x,i,j,-get(x,i,j)); // creates reaction & friction force from surface
-                    // TODO seperate reaction & friction forces
                 }
             }
         }

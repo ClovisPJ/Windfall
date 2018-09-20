@@ -43,7 +43,20 @@ void draw() {
         leaf.run(0.6);
         leaf.render();
         for (Node n : leaf.nodes) {
-            n.applyForce(fluid.field_vector((int)n.position.x, (int)n.position.y));
+            int x = (int)n.position.x;
+            int y = (int)n.position.y;
+            n.applyForce(fluid.field_vector(x, y));
+            if (fluid.boundary(x, y)) {
+                if (!fluid.boundary(x+1, y)) {
+                    n.position.x += 1;
+                } else if (!fluid.boundary(x, y+1)) {
+                    n.position.y += 1;
+                } else if (!fluid.boundary(x-1, y)) {
+                    n.position.x -= 1;
+                } else if (!fluid.boundary(x, y-1)) {
+                    n.position.y -= 1;
+                }
+            }
         }
     }
     if (show_menu) {
@@ -109,4 +122,3 @@ void keyPressed() {
         selected_tb.concatText(key);
     }
 }
-
