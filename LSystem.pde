@@ -27,11 +27,11 @@ class LSystem {
         assert(n >= 0);
         if (n == 0) return gen;
         StringBuilder next_gen = new StringBuilder();
-        for (char g : gen.toCharArray()) {
+        gen : for (char g : gen.toCharArray()) {
             for (LSystemRule lsr : rules) {
                 if (String.valueOf(g).equals(lsr.pre)) {
                     next_gen.append(lsr.post);
-                    break;
+                    continue gen;
                 }
             }
             next_gen.append(g);
