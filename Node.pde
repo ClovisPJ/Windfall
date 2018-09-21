@@ -11,7 +11,9 @@ class Node extends Utils {
     float mass;
     float radius;
 
-    public Node(PVector position, float mass, float radius) {
+    public Node(int[] size, int scale, PVector position, float mass, float radius) {
+        super(size, scale);
+
         this.position = position.copy();
         this.velocity = new PVector(0,0);
         this.acceleration = new PVector(0,0);
@@ -51,28 +53,8 @@ class Node extends Utils {
     }
 
     public void limits() {
-        position.x = mod(position.x, width);
-        position.y = mod(position.y, height);
-        /*if (position.x < -radius) position.x = width+radius;
-        if (position.y < -radius) position.y = height+radius;
-        if (position.x > width+radius) position.x = -radius;
-        if (position.y > height+radius) position.y = -radius;
-        if (position.x < 0) {
-            position.x = 0;
-            velocity.x = abs(velocity.x);
-        }
-        if (position.y < 0) {
-            position.y = 0;
-            velocity.y = abs(velocity.y);
-        }
-        if (position.x > width) {
-            position.x = width;
-            velocity.x = -abs(velocity.x);
-        }
-        if (position.y > height) {
-            position.y = height;
-            velocity.y = -abs(velocity.y);
-        }*/
+        position.x = mod(position.x, size[0]);
+        position.y = mod(position.y, size[1]);
     }
 
 }

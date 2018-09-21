@@ -11,35 +11,35 @@ class Fluid extends Utils {
     MutableFloat dt;
     float[][] reaction;
     float[][] friction;
-    int N;
 
-    color boundary_color;
+    MutableFloat boundary_blower_scale;
+    MutableFloat density_scale;
+    MutableFloat field_scale;
     color field_color;
-    float density_scale;
-    float field_scale;
 
-    public Fluid(int N) {
-        u = new float[N][N];
-        v = new float[N][N];
-        u_prev = new float[N][N];
-        v_prev = new float[N][N];
-        dens = new float[N][N];
-        dens_prev = new float[N][N];
+    public Fluid(int[] size, int scale) {
+        super(size, scale);
+
+        u = new float[size[0]][size[1]];
+        v = new float[size[0]][size[1]];
+        u_prev = new float[size[0]][size[1]];
+        v_prev = new float[size[0]][size[1]];
+        dens = new float[size[0]][size[1]];
+        dens_prev = new float[size[0]][size[1]];
         visc = new MutableFloat(1);
         diff = new MutableFloat(1);
         dt = new MutableFloat(1);
-        reaction = new float[N][N];
-        friction = new float[N][N];
-        this.N = N;
+        reaction = new float[size[0]][size[1]];
+        friction = new float[size[0]][size[1]];
 
-        boundary_color = color(255,0,0);
+        boundary_blower_scale = new MutableFloat(5);
+        density_scale = new MutableFloat(5);
+        field_scale = new MutableFloat(5);
         field_color = color(255,0,0);
-        density_scale = 10;
-        field_scale = 1000;
     }
 
     private boolean checkBounds(int x, int y) {
-        return (x <= N && x >= 0 && y <= N && y >= 0);
+        return (x < size[0] && x >= 0 && y < size[1] && y >= 0);
     }
 
     public PVector field_vector(int x, int y) {
@@ -66,50 +66,71 @@ class Fluid extends Utils {
     // SET/GET METHODS
 
     private float get(float[][] f, int x, int y) {
-        x = mod(x, width);
-        y = mod(y, height);
+        x = mod(x, size[0]);
+        y = mod(y, size[1]);
         assert (checkBounds(x, y));
         return f[x][y];
     }
 
     private void set(float[][] f, int x, int y, float data) {
-        x = mod(x, width);
-        y = mod(y, height);
+        x = mod(x, size[0]);
+        y = mod(y, size[1]);
         assert (checkBounds(x, y));
         f[x][y] = data;
     }
 
     private void setAdd(float[][] f, int x, int y, float data) {
-        x = mod(x, width);
-        y = mod(y, height);
+        x = mod(x, size[0]);
+        y = mod(y, size[1]);
         assert (checkBounds(x, y));
         f[x][y] += data;
     }
 
     // DRAW METHODS
 
-    public void draw(boolean draw_dens, boolean draw_field) {
-        if (draw_dens) draw_point(dens);
-        if (draw_field) draw_arrow(u, v);
+    public void draw(boolean draw_dens, boolean draw_field_length_arrows, boolean draw_field_norm_arrows) {
+        if (draw_dens) draw_points(dens);
+        if (draw_field_length_arrows) draw_length_arrows(u, v);
+        if (draw_field_norm_arrows) draw_norm_arrows(u, v);
     }
 
-    private void draw_point(float[][] x) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                strokeWeight(1);
-                stroke(map(get(x,i,j), 0, density_scale, 255, 0));
-                if (boundary(i,j)) stroke(boundary_color);
-                point(i, j);
+    private void draw_points(float[][] x) {
+        for (int i = 0; i < size[0]; i++) {
+            for (int j = 0; j < size[1]; j++) {
+                if (!boundary(i,j)) {
+                    fill(map(get(x,i,j), 0, density_scale.get(), 255, 0)); // grays
+                } else if (get(reaction,i,j) <= 1) {
+                    fill(0, 0, 0); // black
+                } else if (get(reaction,i,j) > 1) {
+                    fill(map(get(reaction,i, j), 1, boundary_blower_scale.get(), 0, 255), 0, 0); // reds
+                }
+                noStroke();
+                rect(i*scale, j*scale, (i+1)*scale, (j+1)*scale);
             }
         }
     }
 
-    private void draw_arrow(float[][] u, float[][] v) {
-        for (int i = 0; i < N; i+=10) {
-            for (int j = 0; j < N; j+=10) {
-                strokeWeight(1);
+    private void draw_length_arrows(float[][] u, float[][] v) {
+        for (int i = 0; i < size[0]; i+=10) {
+            for (int j = 0; j < size[1]; j+=10) {
+                strokeWeight(scale);
                 stroke(field_color);
-                line(i, j, i + field_scale*get(u,i,j), j + field_scale*get(v,i,j));
+                line((i+0.5)*scale, (j+0.5)*scale,
+                     (i+0.5)*scale + field_scale.get() * get(u,i,j),
+                     (j+0.5)*scale + field_scale.get() * get(v,i,j));
+            }
+        }
+    }
+
+    private void draw_norm_arrows(float[][] u, float[][] v) {
+        for (int i = 0; i < size[0]; i+=10) {
+            for (int j = 0; j < size[1]; j+=10) {
+                strokeWeight(scale);
+                stroke(field_color);
+                PVector vec = new PVector(get(u,i,j), get(v,i,j)).normalize();
+                line((i+0.5)*scale, (j+0.5)*scale,
+                     (i+0.5 + field_scale.get() * vec.x)*scale,
+                     (j+0.5 + field_scale.get() * vec.y)*scale);
             }
         }
     }
@@ -139,14 +160,15 @@ class Fluid extends Utils {
             for (int j = y - r/2; j <= y + r/2; j++) {
                 float strength = sqrt((x-i)*(x-i) + (y-j)*(y-j));
                 setAdd(f,i,j,(1 - strength / r) * power);
+                // TODO invetigation the following assertion
                 // 'strength / r' varies on [0, 1/sqrt(2)]
             }
         }
     }
 
     public void add_field (float[][] x, float[][] s, float dt) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        for (int i = 0; i < size[0]; i++) {
+            for (int j = 0; j < size[1]; j++) {
                 setAdd(x,i,j,dt * get(s,i,j));
             }
         }
@@ -155,9 +177,9 @@ class Fluid extends Utils {
     // FLUID MECH METHODS
 
     public void simulate() {
-        u_prev = new float[N][N];
-        v_prev = new float[N][N];
-        dens_prev = new float[N][N];
+        u_prev = new float[size[0]][size[1]];
+        v_prev = new float[size[0]][size[1]];
+        dens_prev = new float[size[0]][size[1]];
         vel_step(u, v, u_prev, v_prev, visc.get(), dt.get());
         dens_step(dens, dens_prev, u, v, diff.get(), dt.get());
         set_bnd(0, dens);
@@ -192,10 +214,9 @@ class Fluid extends Utils {
 
     public void diffuse (int b, float[][] x, float[][] x0, float rate, float dt) {
         float a = dt*rate;
-
         for (int k = 0; k < 20; k++) {
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
+            for (int i = 0; i < size[0]; i++) {
+                for (int j = 0; j < size[1]; j++) {
                     set(x,i,j, (get(x0,i,j) + a * (get(x,i-1,j) + get(x,i+1,j) + get(x,i,j-1) + get(x,i,j+1))) / (1 + 4*a));
                 }
             }
@@ -204,39 +225,40 @@ class Fluid extends Utils {
 
     public void advect(int b, float[][] d, float[][] d0, float[][] u, float[][] v, float dt) {
         int i0, j0, i1, j1;
-        float x, y, s0, t0, s1, t1, dt0;
-        dt0 = dt*N;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                x = i - dt0 * get(u,i,j); y = j - dt0 * get(v,i,j);
-                if (x < 0.5) x = 0.5; if (x > N+0.5) x = N + 0.5; i0 = (int)x; i1 = i0 + 1;
-                if (y < 0.5) y = 0.5; if (y > N+0.5) y = N + 0.5; j0 = (int)y; j1 = j0 + 1;
+        float x, y, s0, t0, s1, t1;
+        for (int i = 0; i < size[0]; i++) {
+            for (int j = 0; j < size[1]; j++) {
+                x = i - dt * get(u,i,j); y = j - dt * get(v,i,j);
+                x = mod(x, size[0]);
+                i0 = (int)x; i1 = i0 + 1;
+                y = mod(y, size[1]);
+                j0 = (int)y; j1 = j0 + 1;
                 s1 = x - i0; s0 = 1 - s1; t1 = y - j0; t0 = 1 - t1;
                 set(d,i,j, s0 * ( t0*get(d0,i0,j0) + t1*get(d0,i0,j1) ) +
-                    s1 * ( t0*get(d0,i1,j0) + t1*get(d0,i1,j1) ) );
+                           s1 * ( t0*get(d0,i1,j0) + t1*get(d0,i1,j1) ) );
             }
         }
     }
 
     public void project(float[][] u, float[][] v, float[][] p, float[][] div) {
-        float h = 1.0/N;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        float h = 1.0;
+        for (int i = 0; i < size[0]; i++) {
+            for (int j = 0; j < size[1]; j++) {
                 set(div,i,j, -0.5*h*(get(u,i+1,j) - get(u,i-1,j) + get(v,i,j+1) - get(v,i,j-1)));
                 set(p,i,j, 0);
             }
         }
 
         for (int k = 0; k < 20; k++) {
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
+            for (int i = 0; i < size[0]; i++) {
+                for (int j = 0; j < size[1]; j++) {
                     set(p,i,j, (get(div,i,j) + get(p,i-1,j) + get(p,i+1,j) + get(p,i,j-1) + get(p,i,j+1)) / 4);
                 }
             }
         }
 
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        for (int i = 0; i < size[0]; i++) {
+            for (int j = 0; j < size[1]; j++) {
                 setAdd(u,i,j, -0.5 * (get(p,i+1,j) - get(p,i-1,j)) / h);
                 setAdd(v,i,j, -0.5 * (get(p,i,j+1) - get(p,i,j-1)) / h);
             }
@@ -244,8 +266,8 @@ class Fluid extends Utils {
     }
 
     public void set_bnd(int b, float[][] x) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        for (int i = 0; i < size[0]; i++) {
+            for (int j = 0; j < size[1]; j++) {
                 float fric, reac;
                 if (boundary(i,j)) {
                     fric = get(friction,i,j);
@@ -261,11 +283,11 @@ class Fluid extends Utils {
                         k = 1;
                     }
                     if (!boundary(i-1,j)) {
-                        setAdd(x,i,j, k*get(x,i-1,j));
+                        setAdd(x,i,j, (k*get(x,i-1,j) > 0)&&(b==1) ? 0 : k*get(x,i-1,j));
                         surround++;
                     }
                     if (!boundary(i+1,j)) {
-                        setAdd(x,i,j, k*get(x,i+1,j));
+                        setAdd(x,i,j, (k*get(x,i+1,j) < 0)&&(b==1) ? 0 : k*get(x, i+1, j));
                         surround++;
                     }
                     if (b==1) {
@@ -276,11 +298,11 @@ class Fluid extends Utils {
                         k = 1;
                     }
                     if (!boundary(i,j-1)) {
-                        setAdd(x,i,j, k*get(x,i,j-1));
+                        setAdd(x,i,j, (k*get(x,i,j-1) > 0)&&(b==2) ? 0 : k*get(x,i,j-1));
                         surround++;
                     }
                     if (!boundary(i,j+1)) {
-                        setAdd(x,i,j, k*get(x,i,j+1));
+                        setAdd(x,i,j, (k*get(x,i,j+1) < 0)&&(b==2) ? 0 : k*get(x,i,j+1));
                         surround++;
                     }
                     if (surround != 0) set(x,i,j, get(x,i,j) / surround);

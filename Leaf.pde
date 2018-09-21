@@ -1,4 +1,4 @@
-class Leaf extends Utils implements Cloneable {
+class Leaf extends Utils {
 
     ArrayList<Node> nodes;
     ArrayList<Joint> joints;
@@ -14,7 +14,10 @@ class Leaf extends Utils implements Cloneable {
     float joint_deflection;
     float joint_breaking_stress;
 
-    public Leaf(PVector location, float ang, float node_mass, float node_radius, float joint_length, float joint_stiffness, float joint_deflection, float joint_breaking_stress, LSystem lsys) {
+    //TODO clear args up, make mutable vars
+    public Leaf(int[] size, int scale, PVector location, float ang, float node_mass, float node_radius, float joint_length, float joint_stiffness, float joint_deflection, float joint_breaking_stress, LSystem lsys) {
+        super(size, scale);
+
         this.location = location;
         this.ang = ang;
         this.node_mass = node_mass;
@@ -27,18 +30,7 @@ class Leaf extends Utils implements Cloneable {
 
         nodes = new ArrayList<Node>();
         joints = new ArrayList<Joint>();
-        nodes.add(new Node(location, node_mass, node_radius));
-
-        /*Node n1 = new Node(new PVector(x, y), node_mass, node_radius);
-        Node n2 = new Node(new PVector(x+joint_length, y), node_mass, node_radius);
-        Node n3 = new Node(new PVector(x+joint_length, y+joint_length), node_mass, node_radius);
-        nodes.add(n1);
-        nodes.add(n2);
-        nodes.add(n3);
-        Joint j1 = new Joint(n1, 0, n2, PI, joint_length, joint_stiffness, joint_deflection, joint_breaking_stress);
-        Joint j2 = new Joint(n2, 3*PI/2, n3, PI/2, joint_length, joint_stiffness, joint_deflection, joint_breaking_stress);
-        joints.add(j1);
-        joints.add(j2);*/
+        nodes.add(new Node(size, scale, location, node_mass, node_radius));
     }
 
     public void build() {
@@ -73,9 +65,9 @@ class Leaf extends Utils implements Cloneable {
                     turtle_position_copy.add(new PVector(joint_length,0).rotate(turtle_angle));
                     Node node_a = nodes.get(node_pos);
                     node_pos = nodes.size();
-                    Node node_b = new Node(turtle_position_copy, node_mass, node_radius);
+                    Node node_b = new Node(size, scale, turtle_position_copy, node_mass, node_radius);
                     float ang = angto(node_a.position, node_b.position);
-                    Joint j = new Joint(node_a, ang, node_b, ang+PI, joint_length, joint_stiffness, joint_deflection, joint_breaking_stress);
+                    Joint j = new Joint(size, scale, node_a, ang, node_b, ang+PI, joint_length, joint_stiffness, joint_deflection, joint_breaking_stress);
                     nodes.add(node_b);
                     joints.add(j);
                     break;
@@ -126,16 +118,11 @@ class Leaf extends Utils implements Cloneable {
         }*/
         // METHOD 3 LINES AND POINTS
         for (Node n : nodes) {
-            stroke(0);
-            strokeWeight(1);
-            point(n.position.x, n.position.y);
+            draw_point(n.position);
         }
         for (Joint j : joints) {
             if (j.broken) {continue;}
-            PVector joint = wayto(j.left_node.position, j.right_node.position);
-            draw_pointvector(j.left_node.position, joint);
-            joint = wayto(j.right_node.position, j.left_node.position);
-            draw_pointvector(j.right_node.position, joint);
+            draw_vector(j.left_node.position, j.right_node.position);
         }
     }
 

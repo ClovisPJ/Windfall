@@ -16,6 +16,7 @@ class Input {
     }
 
     public void show() {
+        strokeWeight(1);
         stroke(border_color);
         fill(fill_color);
         rect(position.x, position.y, size.x, size.y);

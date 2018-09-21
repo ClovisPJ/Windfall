@@ -11,7 +11,9 @@ class Joint extends Utils {
     float breaking_stress;
     boolean broken;
 
-    public Joint(Node left_node, float joint_true_left_ang, Node right_node, float joint_true_right_ang, float length, float stiffness, float deflection, float breaking_stress) {
+    public Joint(int[] size, int scale, Node left_node, float joint_true_left_ang, Node right_node, float joint_true_right_ang, float length, float stiffness, float deflection, float breaking_stress) {
+        super(size, scale);
+
         this.left_node = left_node;
         this.joint_true_left_ang = joint_true_left_ang;
         this.right_node = right_node;
