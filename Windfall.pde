@@ -18,6 +18,8 @@ ColorPicker selected_cp;
 MutableBoolean draw_dens;
 MutableBoolean draw_field_length_arrows;
 MutableBoolean draw_field_norm_arrows;
+MutableColor leaf_vector_color;
+MutableColor leaf_point_color;
 
 void setup() {
     size = new int[] {150, 150};
@@ -25,6 +27,8 @@ void setup() {
     size(450, 450, P2D);
     fluid = new Fluid(size, scale);
     leaves = new ArrayList<Leaf>();
+    leaf_vector_color = new MutableColor(color(0));
+    leaf_point_color = new MutableColor(color(0));
 
     show_menu = true;
     PVector tb_size = new PVector(50,15);
@@ -43,6 +47,10 @@ void setup() {
     menu_list.add(new Button(new PVector(25,125), button_size, "A", draw_field_length_arrows));
     menu_list.add(new Button(new PVector(45,125), button_size, "N", draw_field_norm_arrows));
     menu_list.add(new ColorButton(new PVector(5,145), button_size, fluid.field_color));
+    menu_list.add(new ColorButton(new PVector(5,165), button_size, fluid.dens_start_color));
+    menu_list.add(new ColorButton(new PVector(5,185), button_size, fluid.dens_end_color));
+    menu_list.add(new ColorButton(new PVector(5,205), button_size, leaf_vector_color));
+    menu_list.add(new ColorButton(new PVector(5,225), button_size, leaf_point_color));
     key_log = false;
 
 }
@@ -88,28 +96,34 @@ void mousePressed() {
                 key_log = true;
                 selected_tb = (TextBox)input;
                 input.select();
+                break;
             } else if (input instanceof Button) {
                 Button button = (Button)input;
                 button.change();
+                break;
             } else if (input instanceof ColorButton) {
                 ColorButton colorbutton = (ColorButton)input;
                 if ((colorbutton.getCP() == null) && (selected_cp == null)) {
                     colorbutton.select();
                     selected_cp = colorbutton.getCP();
                     itr.add(selected_cp);
+                    break;
                 }
             } else if (input instanceof ColorPicker) {
                 ColorPicker cp = (ColorPicker)input;
                 cp.select(new PVector(mouseX, mouseY));
+                break;
             }
         } else if (input.equals(selected_tb)) {
             key_log = false;
             selected_tb = null;
             input.unselect();
+            break;
         } else if (input.equals(selected_cp)) {
             itr.remove();
             selected_cp.unselect();
             selected_cp = null;
+            break;
         }
     }
     if (keyPressed && key == 'b') {
@@ -120,7 +134,10 @@ void mousePressed() {
         LSystem lsys;
         lsys = new LSystem("X", 3, 0.3926991);
         lsys.addRule(lsys.new LSystemRule("X","F[+F][-F]X"));
-        Leaf leaf = new Leaf(size, scale, new PVector(mouseX/scale, mouseY/scale), 0, 0.01, 0.01, 10, 0.06, 0.01, 0.5, lsys);
+        Leaf leaf = new Leaf(size, scale, new PVector(mouseX/scale, mouseY/scale), 0, lsys);
+        leaf.nodeSettings(0.01, 0.01);
+        leaf.jointSettings(10, 0.06, 0.01, 0.5);
+        leaf.setColors(leaf_vector_color, leaf_point_color);
         leaf.build();
         leaves.add(leaf);
     }
@@ -134,6 +151,7 @@ void mouseDragged() {
             if (input instanceof ColorPicker) {
                 ColorPicker cp = (ColorPicker)input;
                 cp.select(new PVector(mouseX, mouseY));
+                break;
             }
         }
     }
@@ -153,6 +171,7 @@ void mouseReleased() {
         if (input instanceof ColorPicker) {
             ColorPicker cp = (ColorPicker)input;
             cp.unselect();
+            break;
         }
     }
 }

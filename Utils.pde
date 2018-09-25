@@ -1,5 +1,8 @@
 class Utils {
 
+    MutableColor leaf_vector_color;
+    MutableColor leaf_point_color;
+
     public int[] size;
     public int scale;
 
@@ -7,6 +10,13 @@ class Utils {
         assert(size.length == 2);
         this.size = size;
         this.scale = scale;
+        leaf_vector_color = new MutableColor(color(0));
+        leaf_point_color = new MutableColor(color(0));
+    }
+
+    public void setColors(MutableColor leaf_vector_color, MutableColor leaf_point_color) {
+        this.leaf_vector_color = leaf_vector_color;
+        this.leaf_point_color = leaf_point_color;
     }
 
     public PVector wayto(PVector from, PVector to) {
@@ -53,14 +63,14 @@ class Utils {
     }
 
     protected void draw_pointvector(PVector point, PVector line) {
-        stroke(0);
+        stroke(leaf_vector_color.get());
         strokeWeight(1);
         PVector other = PVector.add(point, line);
         line(point.x*scale, point.y*scale, other.x*scale, other.y*scale);
     }
 
     protected void draw_point(PVector point) {
-        stroke(0);
+        stroke(leaf_point_color.get());
         strokeWeight(scale);
         point(point.x*scale, point.y*scale);
     }

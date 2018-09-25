@@ -14,26 +14,37 @@ class Leaf extends Utils {
     float joint_deflection;
     float joint_breaking_stress;
 
-    //TODO clear args up, make mutable vars
-    public Leaf(int[] size, int scale, PVector location, float ang, float node_mass, float node_radius, float joint_length, float joint_stiffness, float joint_deflection, float joint_breaking_stress, LSystem lsys) {
+    public Leaf(int[] size, int scale, PVector location, float ang, LSystem lsys) {
         super(size, scale);
 
         this.location = location;
         this.ang = ang;
-        this.node_mass = node_mass;
-        this.node_radius = node_radius;
-        this.joint_length = joint_length;
-        this.joint_stiffness = joint_stiffness;
-        this.joint_deflection = joint_deflection;
-        this.joint_breaking_stress = joint_breaking_stress;
         this.lsys = lsys;
 
         nodes = new ArrayList<Node>();
         joints = new ArrayList<Joint>();
-        nodes.add(new Node(size, scale, location, node_mass, node_radius));
+    }
+
+    public void nodeSettings(float node_mass, float node_radius) {
+        this.node_mass = node_mass;
+        this.node_radius = node_radius;
+    }
+
+    public void jointSettings(float joint_length, float joint_stiffness, float joint_deflection, float joint_breaking_stress) {
+        this.joint_length = joint_length;
+        this.joint_stiffness = joint_stiffness;
+        this.joint_deflection = joint_deflection;
+        this.joint_breaking_stress = joint_breaking_stress;
     }
 
     public void build() {
+        assert(node_mass != 0);
+        assert(node_radius != 0);
+        assert(joint_length != 0);
+        assert(joint_stiffness != 0);
+        assert(joint_deflection != 0);
+        assert(joint_breaking_stress != 0);
+        nodes.add(new Node(size, scale, location, node_mass, node_radius));
         lsys.generate();
         build(lsys.show(), lsys.mod_ang(), location, ang, 0);
     }

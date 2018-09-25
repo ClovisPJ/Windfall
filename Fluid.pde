@@ -16,6 +16,8 @@ class Fluid extends Utils {
     MutableFloat density_scale;
     MutableFloat field_scale;
     MutableColor field_color;
+    MutableColor dens_start_color;
+    MutableColor dens_end_color;
 
     public Fluid(int[] size, int scale) {
         super(size, scale);
@@ -36,6 +38,8 @@ class Fluid extends Utils {
         density_scale = new MutableFloat(5);
         field_scale = new MutableFloat(5);
         field_color = new MutableColor(color(255,0,0));
+        dens_start_color = new MutableColor(color(255));
+        dens_end_color = new MutableColor(color(0));
     }
 
     private boolean checkBounds(int x, int y) {
@@ -99,7 +103,7 @@ class Fluid extends Utils {
             for (int j = 0; j < size[1]; j++) {
                 colorMode(RGB, 255);
                 if (!boundary(i,j)) {
-                    fill(map(get(x,i,j), 0, density_scale.get(), 255, 0)); // grays
+                    fill(lerpColor(dens_start_color.get(), dens_end_color.get(), map(get(x,i,j), 0, density_scale.get(), 0.0, 1.0))); // grays
                 } else if (get(reaction,i,j) <= 1) {
                     fill(0, 0, 0); // black
                 } else if (get(reaction,i,j) > 1) {
