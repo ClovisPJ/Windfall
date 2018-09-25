@@ -23,11 +23,13 @@ class Input {
     }
 
     public void select() {
+        colorMode(RGB, 255);
         border_color = color(255, 70, 0);
         fill_color = color(230);
     }
 
     public void unselect() {
+        colorMode(RGB, 255);
         border_color = color(150);
         fill_color = color(200);
     }

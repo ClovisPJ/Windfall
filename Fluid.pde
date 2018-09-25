@@ -15,7 +15,7 @@ class Fluid extends Utils {
     MutableFloat boundary_blower_scale;
     MutableFloat density_scale;
     MutableFloat field_scale;
-    color field_color;
+    MutableColor field_color;
 
     public Fluid(int[] size, int scale) {
         super(size, scale);
@@ -35,7 +35,7 @@ class Fluid extends Utils {
         boundary_blower_scale = new MutableFloat(5);
         density_scale = new MutableFloat(5);
         field_scale = new MutableFloat(5);
-        field_color = color(255,0,0);
+        field_color = new MutableColor(color(255,0,0));
     }
 
     private boolean checkBounds(int x, int y) {
@@ -97,6 +97,7 @@ class Fluid extends Utils {
     private void draw_points(float[][] x) {
         for (int i = 0; i < size[0]; i++) {
             for (int j = 0; j < size[1]; j++) {
+                colorMode(RGB, 255);
                 if (!boundary(i,j)) {
                     fill(map(get(x,i,j), 0, density_scale.get(), 255, 0)); // grays
                 } else if (get(reaction,i,j) <= 1) {
@@ -114,7 +115,7 @@ class Fluid extends Utils {
         for (int i = 0; i < size[0]; i+=10) {
             for (int j = 0; j < size[1]; j+=10) {
                 strokeWeight(scale);
-                stroke(field_color);
+                stroke(field_color.get());
                 line((i+0.5)*scale, (j+0.5)*scale,
                      (i+0.5)*scale + field_scale.get() * get(u,i,j),
                      (j+0.5)*scale + field_scale.get() * get(v,i,j));
@@ -126,7 +127,7 @@ class Fluid extends Utils {
         for (int i = 0; i < size[0]; i+=10) {
             for (int j = 0; j < size[1]; j+=10) {
                 strokeWeight(scale);
-                stroke(field_color);
+                stroke(field_color.get());
                 PVector vec = new PVector(get(u,i,j), get(v,i,j)).normalize();
                 line((i+0.5)*scale, (j+0.5)*scale,
                      (i+0.5 + field_scale.get() * vec.x)*scale,

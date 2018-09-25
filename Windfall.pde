@@ -1,3 +1,5 @@
+import java.util.ListIterator;
+
 Fluid fluid;
 ArrayList<Leaf> leaves;
 
@@ -11,6 +13,7 @@ boolean show_menu;
 ArrayList<Input> menu_list;
 boolean key_log;
 TextBox selected_tb;
+ColorPicker selected_cp;
 
 MutableBoolean draw_dens;
 MutableBoolean draw_field_length_arrows;
@@ -39,6 +42,7 @@ void setup() {
     menu_list.add(new Button(new PVector(5,125), button_size, "D", draw_dens));
     menu_list.add(new Button(new PVector(25,125), button_size, "A", draw_field_length_arrows));
     menu_list.add(new Button(new PVector(45,125), button_size, "N", draw_field_norm_arrows));
+    menu_list.add(new ColorButton(new PVector(5,145), button_size, fluid.field_color));
     key_log = false;
 
 }
@@ -68,13 +72,46 @@ void draw() {
         }
     }
     if (show_menu) {
-        for (Input input : menu_list) {
+        for (ListIterator<Input> itr = menu_list.listIterator(); itr.hasNext(); ) {
+            Input input = itr.next();
             input.show();
         }
     }
 }
 
-void mouseClicked() {
+void mousePressed() {
+    for (ListIterator<Input> itr = menu_list.listIterator(); itr.hasNext(); ) {
+        Input input = itr.next();
+        if (input.within(mouseX, mouseY)) {
+            if (input instanceof TextBox) {
+                if (selected_tb != null) selected_tb.unselect();
+                key_log = true;
+                selected_tb = (TextBox)input;
+                input.select();
+            } else if (input instanceof Button) {
+                Button button = (Button)input;
+                button.change();
+            } else if (input instanceof ColorButton) {
+                ColorButton colorbutton = (ColorButton)input;
+                if ((colorbutton.getCP() == null) && (selected_cp == null)) {
+                    colorbutton.select();
+                    selected_cp = colorbutton.getCP();
+                    itr.add(selected_cp);
+                }
+            } else if (input instanceof ColorPicker) {
+                ColorPicker cp = (ColorPicker)input;
+                cp.select(new PVector(mouseX, mouseY));
+            }
+        } else if (input.equals(selected_tb)) {
+            key_log = false;
+            selected_tb = null;
+            input.unselect();
+        } else if (input.equals(selected_cp)) {
+            itr.remove();
+            selected_cp.unselect();
+            selected_cp = null;
+        }
+    }
     if (keyPressed && key == 'b') {
         fluid.add_boundary(mouseX/scale, mouseY/scale, 20);
     } else if (keyPressed && key == 'd') {
@@ -87,30 +124,19 @@ void mouseClicked() {
         leaf.build();
         leaves.add(leaf);
     }
-    for (Input input : menu_list) {
-        if (input.within(mouseX, mouseY)) {
-            if (input instanceof TextBox) {
-                if (selected_tb != null) selected_tb.unselect();
-                key_log = true;
-                selected_tb = (TextBox)input;
-                input.select();
-            } else if (input instanceof Button) {
-                Button button = (Button)input;
-                button.change();
-            }
-        } else if (input.equals(selected_tb)) {
-            if (input instanceof TextBox) {
-                key_log = false;
-                selected_tb = null;
-                input.unselect();
-            }
-        }
-    }
-    prevMouseX = mouseX;
-    prevMouseY = mouseY;
+    mouseUpdate();
 }
 
 void mouseDragged() {
+    for (ListIterator<Input> itr = menu_list.listIterator(); itr.hasNext(); ) {
+        Input input = itr.next();
+        if (input.within(mouseX, mouseY)) {
+            if (input instanceof ColorPicker) {
+                ColorPicker cp = (ColorPicker)input;
+                cp.select(new PVector(mouseX, mouseY));
+            }
+        }
+    }
     if (keyPressed && key == 'v') {
         fluid.add_vector(mouseX/scale, mouseY/scale, prevMouseX/scale, prevMouseY/scale, 10);
     } else if (keyPressed && key == 'b') {
@@ -118,8 +144,17 @@ void mouseDragged() {
     } else if (keyPressed && key == 'd') {
         fluid.add_dens(mouseX/scale, mouseY/scale, 20);
     }
-    prevMouseX = mouseX;
-    prevMouseY = mouseY;
+    mouseUpdate();
+}
+
+void mouseReleased() {
+    for (ListIterator<Input> itr = menu_list.listIterator(); itr.hasNext(); ) {
+        Input input = itr.next();
+        if (input instanceof ColorPicker) {
+            ColorPicker cp = (ColorPicker)input;
+            cp.unselect();
+        }
+    }
 }
 
 void keyPressed() {
@@ -129,4 +164,9 @@ void keyPressed() {
     if (key_log) {
         selected_tb.concatText(key);
     }
+}
+
+void mouseUpdate() {
+    prevMouseX = mouseX;
+    prevMouseY = mouseY;
 }

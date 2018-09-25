@@ -10,7 +10,6 @@ class TextBox extends Input {
         this.variable = variable;
         text = Float.toString(variable.get());
         unselect();
-        show();
     }
 
     public void setVariable() {
