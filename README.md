@@ -15,13 +15,13 @@ hold the key and click as follows:
 * 't' - leaf
 * 'v' - wind
 * 'b' - boundary
-* 'p' - pusher
+* 'p' - pusher  
 colors, variables and fields can be controlled from the menu  
 * 'm' - to hide/show menu
 
 # Install:
 Install [Processing 3](https://processing.org/)  
-Open in IDE   
+Clone & open in IDE   
 Run!  
 
 ## Alterative in command-line (Linux only)
