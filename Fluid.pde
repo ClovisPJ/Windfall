@@ -151,11 +151,11 @@ class Fluid extends Utils {
         add_brush(v, x, y, y - prev_y, r);
     }
 
-    public void add_boundary(int x, int y, int r) {
+    public void add_boundary(int x, int y, int r, float reac, float fric) {
         for (int i = x-r/2; i < x+r/2; i++) {
             for (int j = y-r/2; j < y+r/2; j++) {
-                set(reaction,i,j,1);
-                set(friction,i,j,0.7);
+                set(reaction,i,j,reac);
+                set(friction,i,j,fric);
             }
         }
     }
