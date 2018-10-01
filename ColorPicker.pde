@@ -5,7 +5,7 @@ class ColorPicker extends Input {
     ColorButton cb;
 
     public ColorPicker(PVector position, PVector size, MutableColor col, ColorButton cb) {
-        super(position, size);
+        super(position, size, "");
         this.col = col;
         cMode();
         this.cb = cb;
@@ -49,7 +49,13 @@ class ColorPicker extends Input {
         if (vec.x < size.x * surfaceSliderRatio) {
             col.set(color(hue(col.get()), vec.x, vec.y));
         } else if (vec.x > size.x * surfaceSliderRatio) {
-            col.set(color(vec.y, saturation(col.get()), brightness(col.get())));
+            if (brightness(col.get()) == 0) {
+                // Kinda dirty hack to solve annoying behaviour
+                colorMode(HSB, 255);
+                col.set(color(vec.y, 255, 255));
+            } else {
+                col.set(color(vec.y, saturation(col.get()), brightness(col.get())));
+            }
         }
     }
 

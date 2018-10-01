@@ -31,26 +31,26 @@ void setup() {
     leaf_point_color = new MutableColor(color(0));
 
     show_menu = true;
-    PVector tb_size = new PVector(50,15);
+    PVector menu_item_size = new PVector(60,15);
     PVector button_size = new PVector(15,15);
     menu_list = new ArrayList<Input>();
-    menu_list.add(new TextBox(new PVector(5,5), tb_size, fluid.visc));
-    menu_list.add(new TextBox(new PVector(5,25), tb_size, fluid.diff));
-    menu_list.add(new TextBox(new PVector(5,45), tb_size, fluid.dt));
-    menu_list.add(new TextBox(new PVector(5,65), tb_size, fluid.boundary_blower_scale));
-    menu_list.add(new TextBox(new PVector(5,85), tb_size, fluid.density_scale));
-    menu_list.add(new TextBox(new PVector(5,105), tb_size, fluid.field_scale));
+    menu_list.add(new TextBox(new PVector(5,5), menu_item_size, fluid.visc));
+    menu_list.add(new TextBox(new PVector(5,25), menu_item_size, fluid.diff));
+    menu_list.add(new TextBox(new PVector(5,45), menu_item_size, fluid.dt));
+    menu_list.add(new TextBox(new PVector(5,65), menu_item_size, fluid.boundary_blower_scale));
+    menu_list.add(new TextBox(new PVector(5,85), menu_item_size, fluid.density_scale));
+    menu_list.add(new TextBox(new PVector(5,105), menu_item_size, fluid.field_scale));
+    menu_list.add(new ColorButton(new PVector(5,125), menu_item_size, "Field", fluid.field_color));
+    menu_list.add(new ColorButton(new PVector(5,145), menu_item_size, "DensA", fluid.dens_start_color));
+    menu_list.add(new ColorButton(new PVector(5,165), menu_item_size, "DensB", fluid.dens_end_color));
+    menu_list.add(new ColorButton(new PVector(5,185), menu_item_size, "Joint", leaf_vector_color));
+    menu_list.add(new ColorButton(new PVector(5,205), menu_item_size, "Node", leaf_point_color));
     draw_dens = new MutableBoolean(true);
     draw_field_length_arrows = new MutableBoolean(false);
     draw_field_norm_arrows = new MutableBoolean(true);
-    menu_list.add(new Button(new PVector(5,125), button_size, "D", draw_dens));
-    menu_list.add(new Button(new PVector(25,125), button_size, "A", draw_field_length_arrows));
-    menu_list.add(new Button(new PVector(45,125), button_size, "N", draw_field_norm_arrows));
-    menu_list.add(new ColorButton(new PVector(5,145), button_size, fluid.field_color));
-    menu_list.add(new ColorButton(new PVector(5,165), button_size, fluid.dens_start_color));
-    menu_list.add(new ColorButton(new PVector(5,185), button_size, fluid.dens_end_color));
-    menu_list.add(new ColorButton(new PVector(5,205), button_size, leaf_vector_color));
-    menu_list.add(new ColorButton(new PVector(5,225), button_size, leaf_point_color));
+    menu_list.add(new Button(new PVector(5,225), button_size, "D", draw_dens));
+    menu_list.add(new Button(new PVector(25,225), button_size, "A", draw_field_length_arrows));
+    menu_list.add(new Button(new PVector(45,225), button_size, "N", draw_field_norm_arrows));
     key_log = false;
 
 }
@@ -127,12 +127,14 @@ void mousePressed() {
         }
     }
     if (keyPressed && key == 'b') {
-        fluid.add_boundary(mouseX/scale, mouseY/scale, 20);
+        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 1, 0.7);
+    } else if (keyPressed && key == 'p') {
+        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 500, 1);
     } else if (keyPressed && key == 'd') {
         fluid.add_dens(mouseX/scale, mouseY/scale, 20);
     } else if (keyPressed && key == 't'){
         LSystem lsys;
-        lsys = new LSystem("X", 3, 0.3926991);
+        lsys = new LSystem("X", int(random(1,5)), 0.3926991);
         lsys.addRule(lsys.new LSystemRule("X","F[+F][-F]X"));
         Leaf leaf = new Leaf(size, scale, new PVector(mouseX/scale, mouseY/scale), 0, lsys);
         leaf.nodeSettings(0.01, 0.01);
@@ -156,9 +158,11 @@ void mouseDragged() {
         }
     }
     if (keyPressed && key == 'v') {
-        fluid.add_vector(mouseX/scale, mouseY/scale, prevMouseX/scale, prevMouseY/scale, 10);
+        fluid.add_vector(mouseX/scale, mouseY/scale, prevMouseX/scale, prevMouseY/scale, 20);
     } else if (keyPressed && key == 'b') {
-        fluid.add_boundary(mouseX/scale, mouseY/scale, 20);
+        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 1, 0.7);
+    } else if (keyPressed && key == 'p') {
+        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 500, 1);
     } else if (keyPressed && key == 'd') {
         fluid.add_dens(mouseX/scale, mouseY/scale, 20);
     }
@@ -181,7 +185,7 @@ void keyPressed() {
         show_menu = !show_menu;
     }
     if (key_log) {
-        selected_tb.concatText(key);
+        selected_tb.concatLabel(key);
     }
 }
 

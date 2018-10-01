@@ -1,53 +1,46 @@
 class TextBox extends Input {
 
-    String text;
     MutableFloat variable;
 
-    color text_color;
-
     public TextBox(PVector position, PVector size, MutableFloat variable) {
-        super(position, size);
+        super(position, size, Float.toString(variable.get()));
         this.variable = variable;
-        text = Float.toString(variable.get());
         unselect();
     }
 
     public void setVariable() {
-        variable.set(Float.parseFloat(text));
+        variable.set(Float.parseFloat(label));
     }
 
     public float getVariable() {
         return variable.get();
     }
 
-    public boolean concatText(char s) {
+    public boolean concatLabel(char s) {
         if (!Character.isDigit(s) && s != '.') return false;
-        if (s=='.' && text.indexOf('.')!=-1) return false; // NB (~a or b) <-> (a -> b)
-        text += s;
+        if (s=='.' && label.indexOf('.')!=-1) return false; // NB (~a or b) <-> (a -> b)
+        label += s;
         return true;
     }
 
-    public void clearText() {
-        text = new String("");
+    public void clearLabel() {
+        label = new String("");
     }
 
     public void select() {
-        clearText();
+        clearLabel();
         super.select();
     }
 
     public void unselect() {
-        if (text.isEmpty()) text = Float.toString(getVariable());
+        if (label.isEmpty()) label = Float.toString(getVariable());
         setVariable();
-        text = Float.toString(getVariable());
-        text_color = color(0);
+        label = Float.toString(getVariable());
         super.unselect();
     }
 
     public void show() {
         super.show();
-        fill(text_color);
-        text(text, position.x+3, position.y, size.x-3, size.y);
     }
 
 }

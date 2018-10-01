@@ -1,11 +1,9 @@
 class Button extends Input {
 
     MutableBoolean value;
-    String text;
 
-    public Button(PVector position, PVector size, String text, MutableBoolean value) {
-        super(position, size);
-        this.text = text;
+    public Button(PVector position, PVector size, String label, MutableBoolean value) {
+        super(position, size, label);
         this.value = value;
         if (value.get()) {
             select();
@@ -42,8 +40,6 @@ class Button extends Input {
 
     public void show() {
         super.show();
-        fill(0);
-        text(text, position.x+3, position.y, size.x-3, size.y);
     }
 
 }
