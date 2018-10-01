@@ -34,7 +34,7 @@ class Joint extends Utils {
     public void tension() {
         PVector force = wayto(left_node.position, right_node.position);
         force.sub(force.copy().normalize().mult(length)).mult(stiffness);
-        if (force.mag() > breaking_stress) {broken = true; println("JOINT BROKEN"); return;}
+        if (force.mag() > breaking_stress) {broken = true; return;}
         left_node.applyForce(force);
         right_node.applyForce(force.mult(-1));
     }
