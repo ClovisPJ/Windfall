@@ -23,9 +23,9 @@ MutableColor leaf_point_color;
 MutableFloat pusher_force;
 
 void setup() {
-    size = new int[] {150, 150};
+    size = new int[] {125, 125};
     scale = 4;
-    size(600, 600, P2D);
+    size(500, 500, P2D);
     fluid = new Fluid(size, scale);
     leaves = new ArrayList<Leaf>();
     leaf_vector_color = new MutableColor(color(0));
