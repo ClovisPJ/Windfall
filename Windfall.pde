@@ -20,6 +20,7 @@ MutableBoolean draw_field_length_arrows;
 MutableBoolean draw_field_norm_arrows;
 MutableColor leaf_vector_color;
 MutableColor leaf_point_color;
+MutableFloat pusher_force;
 
 void setup() {
     size = new int[] {150, 150};
@@ -29,6 +30,7 @@ void setup() {
     leaves = new ArrayList<Leaf>();
     leaf_vector_color = new MutableColor(color(0));
     leaf_point_color = new MutableColor(color(0));
+    pusher_force = new MutableFloat(10);
 
     show_menu = true;
     PVector menu_item_size = new PVector(80,15);
@@ -37,20 +39,21 @@ void setup() {
     menu_list.add(new NumberBox(new PVector(5,5), menu_item_size, "Visc", fluid.visc));
     menu_list.add(new NumberBox(new PVector(5,25), menu_item_size, "Diff", fluid.diff));
     menu_list.add(new NumberBox(new PVector(5,45), menu_item_size, "Tstep", fluid.dt));
-    menu_list.add(new NumberBox(new PVector(5,65), menu_item_size, "Push S", fluid.pusher_scale));
-    menu_list.add(new NumberBox(new PVector(5,85), menu_item_size, "Dens S", fluid.density_scale));
-    menu_list.add(new NumberBox(new PVector(5,105), menu_item_size, "Field S", fluid.field_scale));
-    menu_list.add(new ColorButton(new PVector(5,125), menu_item_size, "Field", fluid.field_color));
-    menu_list.add(new ColorButton(new PVector(5,145), menu_item_size, "Dens A", fluid.dens_start_color));
-    menu_list.add(new ColorButton(new PVector(5,165), menu_item_size, "Dens B", fluid.dens_end_color));
-    menu_list.add(new ColorButton(new PVector(5,185), menu_item_size, "Joint", leaf_vector_color));
-    menu_list.add(new ColorButton(new PVector(5,205), menu_item_size, "Node", leaf_point_color));
+    menu_list.add(new NumberBox(new PVector(5,65), menu_item_size, "Pusher", pusher_force));
+    menu_list.add(new NumberBox(new PVector(5,85), menu_item_size, "Push S", fluid.pusher_scale));
+    menu_list.add(new NumberBox(new PVector(5,105), menu_item_size, "Dens S", fluid.density_scale));
+    menu_list.add(new NumberBox(new PVector(5,125), menu_item_size, "Field S", fluid.field_scale));
+    menu_list.add(new ColorButton(new PVector(5,145), menu_item_size, "Field", fluid.field_color));
+    menu_list.add(new ColorButton(new PVector(5,165), menu_item_size, "Dens A", fluid.dens_start_color));
+    menu_list.add(new ColorButton(new PVector(5,185), menu_item_size, "Dens B", fluid.dens_end_color));
+    menu_list.add(new ColorButton(new PVector(5,205), menu_item_size, "Joint", leaf_vector_color));
+    menu_list.add(new ColorButton(new PVector(5,225), menu_item_size, "Node", leaf_point_color));
     draw_dens = new MutableBoolean(true);
     draw_field_length_arrows = new MutableBoolean(false);
     draw_field_norm_arrows = new MutableBoolean(true);
-    menu_list.add(new Button(new PVector(5,225), button_size, "D", draw_dens));
-    menu_list.add(new Button(new PVector(25,225), button_size, "A", draw_field_length_arrows));
-    menu_list.add(new Button(new PVector(45,225), button_size, "N", draw_field_norm_arrows));
+    menu_list.add(new Button(new PVector(5,245), button_size, "D", draw_dens));
+    menu_list.add(new Button(new PVector(25,245), button_size, "A", draw_field_length_arrows));
+    menu_list.add(new Button(new PVector(45,245), button_size, "N", draw_field_norm_arrows));
     key_log = false;
 }
 
@@ -137,7 +140,7 @@ void mousePressed() {
     if (keyPressed && key == 'b') {
         fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 1, 0.7);
     } else if (keyPressed && key == 'p') {
-        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 50, 1);
+        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, pusher_force.get(), 0.7);
     } else if (keyPressed && key == 's') {
         fluid.add_dens(mouseX/scale, mouseY/scale, 20);
     } else if (keyPressed && key == 'l'){
@@ -171,7 +174,7 @@ void mouseDragged() {
     } else if (keyPressed && key == 'b') {
         fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 1, 0.7);
     } else if (keyPressed && key == 'p') {
-        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 50, 1);
+        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, pusher_force.get(), 0.7);
     } else if (keyPressed && key == 's') {
         fluid.add_dens(mouseX/scale, mouseY/scale, 20);
     }
