@@ -24,7 +24,7 @@ Install [Processing 3](https://processing.org/)
 Clone & open in IDE   
 Run!  
 
-## Alterative in command-line (Linux only)
+## Altenative in command-line (Linux only)
 clone & move to repo directory  
 Allow execution of `run`:  
 ```
