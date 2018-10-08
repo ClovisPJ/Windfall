@@ -12,7 +12,7 @@ class Fluid extends Utils {
     float[][] reaction;
     float[][] friction;
 
-    MutableFloat boundary_blower_scale;
+    MutableFloat pusher_scale;
     MutableFloat density_scale;
     MutableFloat field_scale;
     MutableColor field_color;
@@ -34,7 +34,7 @@ class Fluid extends Utils {
         reaction = new float[size[0]][size[1]];
         friction = new float[size[0]][size[1]];
 
-        boundary_blower_scale = new MutableFloat(5);
+        pusher_scale = new MutableFloat(100);
         density_scale = new MutableFloat(5);
         field_scale = new MutableFloat(5);
         field_color = new MutableColor(color(255,0,0));
@@ -107,7 +107,7 @@ class Fluid extends Utils {
                 } else if (get(reaction,i,j) <= 1) {
                     fill(0, 0, 0); // black
                 } else if (get(reaction,i,j) > 1) {
-                    fill(map(get(reaction,i, j), 1, boundary_blower_scale.get(), 0, 255), 0, 0); // reds
+                    fill(map(get(reaction,i, j), 1, pusher_scale.get(), 0, 255), 0, 0); // reds
                 }
                 noStroke();
                 rect(i*scale, j*scale, (i+1)*scale, (j+1)*scale);

@@ -37,7 +37,7 @@ void setup() {
     menu_list.add(new NumberBox(new PVector(5,5), menu_item_size, "Visc", fluid.visc));
     menu_list.add(new NumberBox(new PVector(5,25), menu_item_size, "Diff", fluid.diff));
     menu_list.add(new NumberBox(new PVector(5,45), menu_item_size, "Tstep", fluid.dt));
-    menu_list.add(new NumberBox(new PVector(5,65), menu_item_size, "Push S", fluid.boundary_blower_scale));
+    menu_list.add(new NumberBox(new PVector(5,65), menu_item_size, "Push S", fluid.pusher_scale));
     menu_list.add(new NumberBox(new PVector(5,85), menu_item_size, "Dens S", fluid.density_scale));
     menu_list.add(new NumberBox(new PVector(5,105), menu_item_size, "Field S", fluid.field_scale));
     menu_list.add(new ColorButton(new PVector(5,125), menu_item_size, "Field", fluid.field_color));
@@ -52,7 +52,6 @@ void setup() {
     menu_list.add(new Button(new PVector(25,225), button_size, "A", draw_field_length_arrows));
     menu_list.add(new Button(new PVector(45,225), button_size, "N", draw_field_norm_arrows));
     key_log = false;
-
 }
 
 void draw() {
@@ -84,6 +83,14 @@ void draw() {
             Input input = itr.next();
             input.show();
         }
+        fill(color(0));
+        text("Controls", width - 100, 5, width - 3, 15);
+        text("s - smoke/dens", width - 100, 20, width - 3, 30);
+        text("l - leaf", width - 100, 35, width - 3, 45);
+        text("w - wind", width - 100, 50, width - 3, 60);
+        text("b - boundary", width - 100, 65, width - 3, 75);
+        text("p - pusher", width - 100, 80, width - 3, 90);
+        text("m - hide menu", width - 100, 95, width - 3, 105);
     }
 }
 
@@ -130,10 +137,10 @@ void mousePressed() {
     if (keyPressed && key == 'b') {
         fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 1, 0.7);
     } else if (keyPressed && key == 'p') {
-        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 500, 1);
-    } else if (keyPressed && key == 'd') {
+        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 50, 1);
+    } else if (keyPressed && key == 's') {
         fluid.add_dens(mouseX/scale, mouseY/scale, 20);
-    } else if (keyPressed && key == 't'){
+    } else if (keyPressed && key == 'l'){
         LSystem lsys;
         lsys = new LSystem("X", int(random(1,5)), 0.3926991);
         lsys.addRule(lsys.new LSystemRule("X","F[+F][-F]X"));
@@ -159,13 +166,13 @@ void mouseDragged() {
             }
         }
     }
-    if (keyPressed && key == 'v') {
+    if (keyPressed && key == 'w') {
         fluid.add_vector(mouseX/scale, mouseY/scale, prevMouseX/scale, prevMouseY/scale, 20);
     } else if (keyPressed && key == 'b') {
         fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 1, 0.7);
     } else if (keyPressed && key == 'p') {
-        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 500, 1);
-    } else if (keyPressed && key == 'd') {
+        fluid.add_boundary(mouseX/scale, mouseY/scale, 20, 50, 1);
+    } else if (keyPressed && key == 's') {
         fluid.add_dens(mouseX/scale, mouseY/scale, 20);
     }
     mouseUpdate();

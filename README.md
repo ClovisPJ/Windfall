@@ -11,9 +11,9 @@ Includes:
 
 # How to use (controls):
 hold the key and click as follows:  
-* 'd' - smoke
-* 't' - leaf
-* 'v' - wind
+* 's' - smoke
+* 'l' - leaf
+* 'w' - wind
 * 'b' - boundary
 * 'p' - pusher  
 colors, variables and fields can be controlled from the menu  
