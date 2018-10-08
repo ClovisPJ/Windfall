@@ -19,27 +19,10 @@ abstract class Input {
         return (x >= position.x && y >= position.y && x <= position.x + size.x && y <= position.y + size.y);
     }
 
-    public void show() {
-        strokeWeight(1);
-        stroke(border_color);
-        fill(fill_color);
-        rect(position.x, position.y, size.x, size.y);
-        fill(label_color);
-        text(label, position.x+3, position.y, size.x-3, size.y);
-    }
+    public abstract void show();
 
-    public void select() {
-        colorMode(RGB, 255);
-        border_color = color(255, 70, 0);
-        fill_color = color(230);
-        label_color = color(0);
-    }
+    public abstract void select();
 
-    public void unselect() {
-        colorMode(RGB, 255);
-        border_color = color(150);
-        fill_color = color(200);
-        label_color = color(0);
-    }
+    public abstract void unselect();
 
 }

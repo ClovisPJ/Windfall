@@ -12,7 +12,7 @@ int prevMouseY;
 boolean show_menu;
 ArrayList<Input> menu_list;
 boolean key_log;
-TextBox selected_tb;
+NumberBox selected_nb;
 ColorPicker selected_cp;
 
 MutableBoolean draw_dens;
@@ -23,26 +23,26 @@ MutableColor leaf_point_color;
 
 void setup() {
     size = new int[] {150, 150};
-    scale = 3;
-    size(450, 450, P2D);
+    scale = 4;
+    size(600, 600, P2D);
     fluid = new Fluid(size, scale);
     leaves = new ArrayList<Leaf>();
     leaf_vector_color = new MutableColor(color(0));
     leaf_point_color = new MutableColor(color(0));
 
     show_menu = true;
-    PVector menu_item_size = new PVector(60,15);
+    PVector menu_item_size = new PVector(80,15);
     PVector button_size = new PVector(15,15);
     menu_list = new ArrayList<Input>();
-    menu_list.add(new TextBox(new PVector(5,5), menu_item_size, fluid.visc));
-    menu_list.add(new TextBox(new PVector(5,25), menu_item_size, fluid.diff));
-    menu_list.add(new TextBox(new PVector(5,45), menu_item_size, fluid.dt));
-    menu_list.add(new TextBox(new PVector(5,65), menu_item_size, fluid.boundary_blower_scale));
-    menu_list.add(new TextBox(new PVector(5,85), menu_item_size, fluid.density_scale));
-    menu_list.add(new TextBox(new PVector(5,105), menu_item_size, fluid.field_scale));
+    menu_list.add(new NumberBox(new PVector(5,5), menu_item_size, "Visc", fluid.visc));
+    menu_list.add(new NumberBox(new PVector(5,25), menu_item_size, "Diff", fluid.diff));
+    menu_list.add(new NumberBox(new PVector(5,45), menu_item_size, "Tstep", fluid.dt));
+    menu_list.add(new NumberBox(new PVector(5,65), menu_item_size, "Push S", fluid.boundary_blower_scale));
+    menu_list.add(new NumberBox(new PVector(5,85), menu_item_size, "Dens S", fluid.density_scale));
+    menu_list.add(new NumberBox(new PVector(5,105), menu_item_size, "Field S", fluid.field_scale));
     menu_list.add(new ColorButton(new PVector(5,125), menu_item_size, "Field", fluid.field_color));
-    menu_list.add(new ColorButton(new PVector(5,145), menu_item_size, "DensA", fluid.dens_start_color));
-    menu_list.add(new ColorButton(new PVector(5,165), menu_item_size, "DensB", fluid.dens_end_color));
+    menu_list.add(new ColorButton(new PVector(5,145), menu_item_size, "Dens A", fluid.dens_start_color));
+    menu_list.add(new ColorButton(new PVector(5,165), menu_item_size, "Dens B", fluid.dens_end_color));
     menu_list.add(new ColorButton(new PVector(5,185), menu_item_size, "Joint", leaf_vector_color));
     menu_list.add(new ColorButton(new PVector(5,205), menu_item_size, "Node", leaf_point_color));
     draw_dens = new MutableBoolean(true);
@@ -91,10 +91,10 @@ void mousePressed() {
     for (ListIterator<Input> itr = menu_list.listIterator(); itr.hasNext(); ) {
         Input input = itr.next();
         if (input.within(mouseX, mouseY)) {
-            if (input instanceof TextBox) {
-                if (selected_tb != null) selected_tb.unselect();
+            if (input instanceof NumberBox) {
+                if (selected_nb != null) selected_nb.unselect();
                 key_log = true;
-                selected_tb = (TextBox)input;
+                selected_nb = (NumberBox)input;
                 input.select();
                 break;
             } else if (input instanceof Button) {
@@ -111,12 +111,13 @@ void mousePressed() {
                 }
             } else if (input instanceof ColorPicker) {
                 ColorPicker cp = (ColorPicker)input;
-                cp.select(new PVector(mouseX, mouseY));
+                cp.mouse(new PVector(mouseX, mouseY));
+                cp.select();
                 break;
             }
-        } else if (input.equals(selected_tb)) {
+        } else if (input.equals(selected_nb)) {
             key_log = false;
-            selected_tb = null;
+            selected_nb = null;
             input.unselect();
             break;
         } else if (input.equals(selected_cp)) {
@@ -152,7 +153,8 @@ void mouseDragged() {
         if (input.within(mouseX, mouseY)) {
             if (input instanceof ColorPicker) {
                 ColorPicker cp = (ColorPicker)input;
-                cp.select(new PVector(mouseX, mouseY));
+                cp.mouse(new PVector(mouseX, mouseY));
+                cp.select();
                 break;
             }
         }
@@ -185,7 +187,7 @@ void keyPressed() {
         show_menu = !show_menu;
     }
     if (key_log) {
-        selected_tb.concatLabel(key);
+        selected_nb.concatVarText(key);
     }
 }
 

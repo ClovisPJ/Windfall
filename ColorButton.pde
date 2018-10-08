@@ -4,11 +4,19 @@ class ColorButton extends Input {
     ColorPicker cp;
     PVector cp_size;
 
+    color border_color;
+    color fill_color;
+    color label_color;
+
     public ColorButton(PVector position, PVector size, String label, MutableColor col) {
         super(position, size, label);
         this.col = col;
         cp_size = new PVector(120,100);
-        super.unselect();
+
+        colorMode(RGB, 255);
+        border_color = color(150);
+        fill_color = color(200);
+        label_color = color(0);
     }
 
     public boolean within(float x, float y) {

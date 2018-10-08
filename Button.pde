@@ -2,6 +2,10 @@ class Button extends Input {
 
     MutableBoolean value;
 
+    color border_color;
+    color fill_color;
+    color label_color;
+
     public Button(PVector position, PVector size, String label, MutableBoolean value) {
         super(position, size, label);
         this.value = value;
@@ -30,16 +34,27 @@ class Button extends Input {
 
     public void select() {
         value.set(true);
-        super.select();
+        colorMode(RGB, 255);
+        border_color = color(255, 70, 0);
+        fill_color = color(230);
+        label_color = color(0);
     }
 
     public void unselect() {
         value.set(false);
-        super.unselect();
+        colorMode(RGB, 255);
+        border_color = color(150);
+        fill_color = color(200);
+        label_color = color(0);
     }
 
     public void show() {
-        super.show();
+        strokeWeight(1);
+        stroke(border_color);
+        fill(fill_color);
+        rect(position.x, position.y, size.x, size.y);
+        fill(label_color);
+        text(label, position.x+3, position.y, size.x-3, size.y);
     }
 
 }

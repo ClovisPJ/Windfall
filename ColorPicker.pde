@@ -3,6 +3,10 @@ class ColorPicker extends Input {
     private static final float surfaceSliderRatio = 0.8;
     MutableColor col;
     ColorButton cb;
+    PVector cursor_pos;
+
+    color border_color;
+    color fill_color;
 
     public ColorPicker(PVector position, PVector size, MutableColor col, ColorButton cb) {
         super(position, size, "");
@@ -10,6 +14,7 @@ class ColorPicker extends Input {
         cMode();
         this.cb = cb;
         unselect();
+        cursor_pos = position;
     }
 
     public void show() {
@@ -41,26 +46,35 @@ class ColorPicker extends Input {
         popMatrix();
     }
 
-    public void select(PVector location) {
-        super.select();
+    public void mouse(PVector mouse_location) {
+        cursor_pos = PVector.sub(mouse_location, position);
+        cursor_pos.sub(new PVector(1,1));
+    }
+
+    public void select() {
+        colorMode(RGB, 255);
+        border_color = color(255, 70, 0);
+        fill_color = color(230);
+
         cMode();
-        PVector vec = PVector.sub(location, position);
-        vec.sub(new PVector(1,1));
-        if (vec.x < size.x * surfaceSliderRatio) {
-            col.set(color(hue(col.get()), vec.x, vec.y));
-        } else if (vec.x > size.x * surfaceSliderRatio) {
+        if (cursor_pos.x < size.x * surfaceSliderRatio) {
+            col.set(color(hue(col.get()), cursor_pos.x, cursor_pos.y));
+        } else if (cursor_pos.x > size.x * surfaceSliderRatio) {
             if (brightness(col.get()) == 0) {
                 // Kinda dirty hack to solve annoying behaviour
                 colorMode(HSB, 255);
-                col.set(color(vec.y, 255, 255));
+                col.set(color(cursor_pos.y, 255, 255));
             } else {
-                col.set(color(vec.y, saturation(col.get()), brightness(col.get())));
+                col.set(color(cursor_pos.y, saturation(col.get()), brightness(col.get())));
             }
         }
     }
 
     public void unselect() {
-        super.unselect();
+        colorMode(RGB, 255);
+        border_color = color(150);
+        fill_color = color(200);
+
         cb.unselect();
     }
 
