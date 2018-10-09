@@ -3,10 +3,6 @@ abstract class Input {
     PVector position;
     PVector size;
 
-    color border_color;
-    color fill_color;
-    color label_color;
-
     String label;
 
     public Input(PVector position, PVector size, String label) {

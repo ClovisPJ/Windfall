@@ -30,7 +30,7 @@ void setup() {
     leaves = new ArrayList<Leaf>();
     leaf_vector_color = new MutableColor(color(0));
     leaf_point_color = new MutableColor(color(0));
-    pusher_force = new MutableFloat(10);
+    pusher_force = new MutableFloat(50);
 
     show_menu = true;
     PVector menu_item_size = new PVector(80,15);

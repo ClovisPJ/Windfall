@@ -34,7 +34,7 @@ class Fluid extends Utils {
         reaction = new float[size[0]][size[1]];
         friction = new float[size[0]][size[1]];
 
-        pusher_scale = new MutableFloat(100);
+        pusher_scale = new MutableFloat(80);
         density_scale = new MutableFloat(5);
         field_scale = new MutableFloat(5);
         field_color = new MutableColor(color(255,0,0));
